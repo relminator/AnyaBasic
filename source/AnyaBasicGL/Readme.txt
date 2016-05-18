@@ -1,36 +1,3 @@
-todo:
-1. Value Function (would make function calls easier)(done)
-2. Local variables in functions (Value functions would have their own symbol table)
-3. Var keyword (done)
-
-
-
-04-05-2016 (fixed 04-16-16 by adding nested ASTs)
-// While statement
-// bug!!  Code here is fine
-// However, when condition is false
-// block statement still gets executed
-// Weird thing is,
-// the code executed is not from the While node but the main AST node itself and
-// the current token at this juncture is AFTER the blockstatement
-// which should be the case.
-// possible fix:
-// identifyKeyword adds the statement to the main AST so make another
-// function to mimic the call but don't add the statement to the AST.
-// pseudo:
-// block has it's own AST nested from the main AST via the while statement
-// add all the statements inside the condition there
-// execute the nested AST from  Statementwhile
-
-
-changes:
-
-04-04-16
-* Ditched the old line based-interpreter
-* Added interfaces for AST
-* Recoded the parser
-* Added AST
-
 04-05-16
 * re-implemented while:loop
 * one statement per block only
@@ -132,3 +99,19 @@ changes:
 * ScreenFlip() can have a single param to set synch value(60 if absent)
 * SoundInit(), SoundPlay(), SoundPause(), SoundStop()
 
+05-05-16
+* val()
+* isDigit()
+* isLetter()
+* lowerCase()
+* upperCase()
+
+05-10-16
+* Functions as paramenters and arguments
+* functions can now return a Type, an Array, or an Array of Types.
+* split(string) function
+* GFX and Sound contexts are destroyed when there's a runtime error.
+
+05-15-16
+* Associative arrays Map< String, value >
+* ContainsKey(mapName, keyName)
