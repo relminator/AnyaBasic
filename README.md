@@ -255,3 +255,4 @@ Initial release.
 05-15-16(0.5.1)
 * Associative arrays Map< String, value >
 * ContainsKey(mapName, keyName)
+
