@@ -3,6 +3,8 @@
 
 "The little toy language that could."
 
+![Alt text](http://www.rel.phatcode.net/Mypics/abscreenshot01.png "SHMUP")
+
 AnyaBASIC is a portable Interpreted Programming Language made in Java. 
 It has a syntax similar to BASIC with a bit of C, Javascript and PASCAL thrown in.
 
@@ -20,6 +22,7 @@ Author: Relminator (Richard Eric M. Lope)
             email: vic_viperph@yahoo.com
 
 
+![Alt text](http://www.rel.phatcode.net/Mypics/abscreenshot02.png "Flappy sa AB")
 
 AnyaBASIC uses the MIT license. That means it's free to use for either non-commercial
 or commercial purposes.
