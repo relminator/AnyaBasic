@@ -13,6 +13,8 @@ so it should be a good language to use in teaching kids how to program.
 
 Release 0.5.1
 
+Download: http://rel.phatcode.net/junk.php?id=157
+
 Author: Relminator (Richard Eric M. Lope)
             http://rel.phatcode.net
             email: vic_viperph@yahoo.com
@@ -253,3 +255,4 @@ Initial release.
 05-15-16(0.5.1)
 * Associative arrays Map< String, value >
 * ContainsKey(mapName, keyName)
+
