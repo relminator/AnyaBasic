@@ -70,22 +70,22 @@ Fun fact:
 Credits:
 
  -  LWJGL for AnyaBasic's graphics and sound backend   
-    www.lwjgl.org
+    * www.lwjgl.org
  
  -  ConTEXT Project
-    www.contexteditor.org
+    * www.contexteditor.org
 
  -  Mehmet Emin Coskun for Contra. 
-    mehmetcoskun@fastmail.com.
-    https://github.com/mehmetcnet/contra
-    https://leanpub.com/pic
+    * mehmetcoskun@fastmail.com.
+    * https://github.com/mehmetcnet/contra
+    * https://leanpub.com/pic
 
  -  Bob Nystrom for Jasic.
-    www.stuffwithstuff.com
-    https://github.com/munificent/jasic
+    * www.stuffwithstuff.com
+    * https://github.com/munificent/jasic
 
  -  Andre Victor T. Vicentini for FreeBasic.
-    www.freebasic.net
+    * www.freebasic.net
 
  -  Matthias Mann for his nice PNG decoder.
 
