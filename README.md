@@ -77,9 +77,12 @@ Credits:
 
  -  Mehmet Emin Coskun for Contra. 
     mehmetcoskun@fastmail.com.
+    https://github.com/mehmetcnet/contra
+    https://leanpub.com/pic
 
  -  Bob Nystrom for Jasic.
     www.stuffwithstuff.com
+    https://github.com/munificent/jasic
 
  -  Andre Victor T. Vicentini for FreeBasic.
     www.freebasic.net
