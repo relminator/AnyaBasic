@@ -1,0 +1,144 @@
+# *******************************************************
+A demo showing some of AnyaBasic's graphics capabilities
+
+******************************************************* #
+
+ start
+     var angle = 0      # Angle of rotation for some images #
+     var frame = 0      # Frame counter used for animation and color cycling #
+     var dx = 2.5       # Keyboard controlled ball positions #
+     var dy = 2.0
+     var px = 400       # Keyboard controlled ball directions #
+     var py = 300
+
+     # Randomize bouncing balls placements and direction #
+     var ballsX[] = {random(400),random(400),random(400),random(400)}
+     var ballsY[] = {random(400),random(400),random(400),random(400)}
+     var ballsDx[] = {-4+random(8),-4+random(8),-4+random(8),-4+random(8)}
+     var ballsDy[] = {-4+random(8),-4+random(8),-4+random(8),-4+random(8)}
+
+     # Draws a series of spokes from the center of the screen #
+     function drawSpokes()
+     start
+         for( var i = 0 to 360 step 5)
+         start
+             var j = i * 3.141516 / 180
+             var x1 = 400 + cos(angle + j)* 1200
+             var y1 = 300 + sin(angle + j)* 1200
+             var x2 = 400 - cos(angle + j)* 1200
+             var y2 = 300 - sin(angle + j)* 1200
+             drawLine(x1, y1, x2, y2, 1, 0, 0, 1)
+         end
+     end
+
+     # Not exactly needed but I just want to show parameter passing #
+     function drawAnimatedBall(dabX,dabY)
+     start
+         drawEllipse(dabX,dabY,50,50,0)+
+     end
+
+     # Bounces the balls when they hit the walls #
+     function updateBouncingBalls()
+     start
+         for( var i = 0 to 3 step 1 )
+         start
+             ballsX[i] = ballsX[i] + ballsDx[i]
+             if( ballsX[i] > 800 ) then ballsDx[i] = -ballsDx[i]
+             if( ballsX[i] < 0 ) then ballsDx[i] = -ballsDx[i]
+             ballsY[i] = ballsY[i] + ballsDy[i]
+             if( ballsY[i] > 600 ) then ballsDy[i] = -ballsDy[i]
+             if( ballsY[i] < 0 ) then ballsDy[i] = -ballsDy[i]
+         end
+     end
+
+    # Draws the bouncing balls #
+     function drawBouncingBalls()
+     start
+         updateBouncingBalls()
+         for( var i = 0 to 3 step 1 )
+         start
+             drawAnimatedBall(ballsX[i],ballsY[i])
+         end
+     end
+
+    # Draws the 4 balls moving on a wavy pattern #
+     function drawAnimatedBalls()
+     start
+         var ballX = sin(frame*0.02) + cos(frame*0.07)
+         var ballY = cos(frame*0.05) + cos(frame*0.04) + cos(frame*0.06)
+         drawAnimatedBall(400-ballX*200,300-ballY*75)
+         drawAnimatedBall(400+ballX*200,300-ballY*75)
+         drawAnimatedBall(400-ballX*200,300+ballY*75)
+         drawAnimatedBall(400+ballX*200,300+ballY*75)
+     end
+
+    # Draws concentric boxes starting from the center #
+     function drawBoxes()
+     start
+         for( var i = 0 to 400 step 25)
+         start
+             var x1 = 400 - i
+             var y1 = 300 - i
+             var x2 = 400 + i
+             var y2 = 300 + i
+             drawLine(x1, y1, x2, y2, 0, abs(sin((frame+i)*0.05)), abs(sin((frame+i)*0.5)), 1)+
+         end
+     end
+
+     # Just to show some more primitives #
+     function drawCorners()
+     start
+         setColor(1,1,1,1)
+         drawEllipse(150,100,100,150,45)+   # the '+' means we draw a filled ellipse #
+         drawEllipse(800-150,100,100,150,360-45,abs(sin((frame)*0.05)), abs(sin((frame)*0.5)),0,1 )+
+         drawLine(50, 450, 300, 550, 1, 0, 0, 1),+,+   # the 1st '+' means we draw a box, the 2d '+' means we fill it. #
+         setColor(0,1,0,1)
+         drawEllipse(800-150,600-100,100,100,0)
+     end
+
+     screen(800,600)        # setup an 800x600 screen #
+     var imageArray[10]     # Array to hold the references to our images #
+
+     # Load the images #
+     loadimage("images/anyabasic.png",  imageArray, 0)     # Store the reference at imageArray[0] #
+     loadimage("images/girl.png",  imageArray, 1)   # Store the reference at imageArray[1] #
+
+     # Do the loop until ESC is pressed or Window is closed #
+     while( !(KeyDown(1)) && !WindowClosed() )
+     start
+         frame = frame + 1
+         cls(0,1,0,0.1)
+         angle = angle + 0.01
+         drawCorners()
+         drawBoxes()
+         drawSpokes()
+         if( keyDown(200) == 1 ) then py = py - dy          # Arrow Keys to control the ball #
+         if( keyDown(208) == 1 ) then py = py + dy
+         if( keyDown(203) == 1 ) then px = px - dx
+         if( keyDown(205) == 1 ) then px = px + dx
+         setColor(1,0,1,0.5)
+         drawString(0,0, format("%.2f",  timer()) )         # Print the timer #
+         drawString(100,550,1,1,0,1,"RELMINATOR" )
+
+         drawImage(120,180,0,0,0,0.7),0,imageArray[0]       # Shadow of our logo so draw in Black #
+         setColor(1,1,1,1)                                  # Set color back to normal #
+         drawImage(150,150),0,imageArray[0]                 # Draw our logo #
+
+         setColor(1,1,0,1)
+         drawAnimatedBalls()
+         setColor(1,1,1,1)
+         drawTransformedImage(400,100,frame*4,2,3),3,imageArray[1]                  # Draw a scaled and rotated image #
+         drawTransformedImage(400,500,-frame*4,3,2, 0,1,0,1),3,imageArray[1]
+         drawTransformedImage(mouseX(),mouseY(),0,1,1, 1,1,1,1),0,imageArray[1]     # Draw an image at the mouse location #
+         setColor(0,1,1,0.5)
+         drawBouncingBalls()
+
+         setColor(1,0,1,0.5)
+         drawEllipse(px,py,70,70,0)+     # Draw our keyboard controlled ellipse #
+
+         delay(14)          # Sleep for 14 MS #
+         screenFlip()       # Show the screen #
+     end
+     exit(0)                # Cleanup graphics contexts #
+ end
+

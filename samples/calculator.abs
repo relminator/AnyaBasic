@@ -1,0 +1,165 @@
+# *********************************************************************
+
+  Simple Expression Evaluator using
+  Recursive Descent Parsing
+
+  Relminator
+
+  ******************************************************************* #
+
+Start
+
+
+
+    var tokenPosition = 0
+    var currentToken = ""
+
+    var expression = "10+2.5/3.2-75*211 "
+
+    # Parser #
+    function eat()
+    start
+        tokenPosition = tokenPosition + 1
+        getCurrentToken()
+    end
+
+    function getCurrentToken()
+    start
+        currentToken = substring(expression, tokenPosition, tokenPosition+1)
+    end
+
+    function match( myToken )
+    start
+        if( currentToken == myToken ) then
+        start
+            eat()
+        end
+        else
+        start
+            print("Got " + currentToken )
+            print("Expected " + myToken )
+        end
+
+    end
+
+    function signedAtom()
+    start
+        var res = 0
+        if(currentToken == "-") then
+        start
+            match("-")
+            res = -atom();
+        end
+        else
+        start
+            if(currentToken == "+") then
+            start
+                match("+")
+                res = atom()
+            end
+            res = atom()
+        end
+        return res
+    end
+
+    function factor()
+    start
+        var result = signedAtom()
+        while( (currentToken == "^") )
+        start
+            if( currentToken == "^" ) then
+            start
+                match("^")
+                result = result ^ atom()
+            end
+        end
+        return result
+    end
+
+    function term()
+    start
+        var result = factor()
+        while( (currentToken == "*") || (currentToken == "/")  || (currentToken == "%") )
+        start
+            if( currentToken == "*" ) then
+            start
+                match("*")
+                result = result * factor()
+            end
+            if( currentToken == "/" ) then
+            start
+                match("/")
+                result = result / factor()
+            end
+            if( currentToken == "%" ) then
+            start
+                match("%")
+                result = int(result) % int(factor())
+            end
+
+        end
+        return result
+    end
+
+    function arithmeticExpression()
+    start
+        var result = term()
+        while( (currentToken == "+") || (currentToken == "-") )
+        start
+            if( currentToken == "+" ) then
+            start
+                match("+")
+                result = result + term()
+            end
+            if( currentToken == "-" ) then
+            start
+                match("-")
+                result = result - term()
+            end
+
+        end
+        return result
+    end
+
+    function atom()
+    start
+        var res
+        if( currentToken == "(" ) then
+        start
+            match("(")
+            res = arithmeticExpression()
+            match(")")
+        end
+        else
+        start
+            var stringDigit= ""
+	        while( tokenPosition < stringLength(expression) &&
+	        	 (isDigit(currentToken) ||
+	        	 (currentToken == ".")) )
+	        start
+	        	stringDigit = stringDigit + currentToken
+                eat()
+            end
+            res = val(stringDigit)
+        end
+        return res
+    end
+
+    function parse()
+    start
+        getCurrentToken()
+        return arithmeticExpression()
+    end
+
+    var res = parse()
+    print("")
+    print("")
+    print("Expression: " + expression )
+    print("")
+    print("Result: " + res)
+
+
+
+
+End
+

@@ -1,0 +1,33 @@
+start
+
+Type MyType
+start
+    a = 0
+    b = "anyabasic"
+end
+function add(a, b)
+start
+    return a + b
+end
+
+function c( d )
+start
+    return d(1,2)
+end
+
+
+function returnType()
+start
+    MyType a
+
+    return a
+end
+
+print("1 + 2 = " + c( add ))
+
+MyType d
+d = returnType()
+
+print(d.b)
+end
+

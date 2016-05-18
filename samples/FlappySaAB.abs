@@ -1,0 +1,512 @@
+# *****************************************************************
+
+  Flappy Bird Clone
+  A sample game
+
+  Graphics assets by EntwinklerX
+
+  Relminator
+
+  **************************************************************** #
+
+start
+
+     Type PipeType
+     start
+          x = 0            # position #
+          y = 0
+          dx = 0           # direction #
+          dy = 0
+          active = 0       # is it active? #
+          hasScore = 1     # a helper member to stop it from adding to the score #
+     end
+
+     Type FishType
+     start
+         state = 0         # state #
+         frame = 0         # animation frame #
+         x = -120          # default position #
+         y = 256
+         dx = 0            # default direction #
+         dy = -6.0
+         canJump = 1       # 1 can jump, 0 can't #
+         angle = 0         # angle of rotation for animation #
+     end
+
+     # Emulate Enums via Types #
+     # Fish states #
+     Type StateFish
+     start
+         Active = 0
+         Dead = 1
+         Idle = 2
+     end
+
+     # Game states #
+     Type StateGame
+     start
+         Title = 0
+         Play = 1
+         GameOver = 2
+     end
+
+     var gameState = StateGame.Play
+
+     var score = 0
+
+     # Screen Dimenaions #
+     var screenWidth = 512
+     var screenHeight =  512
+
+     # A tick counter I use for some animations #
+     var frame = 0
+
+     var NUMPIPES = 10
+     var pipeWidth = 64
+     var pipeHeight= 256
+     var activePipes = 0;
+     PipeType pipes[NUMPIPES]     # Array of Type Pipe #
+
+     var scrollSpeed = -3.5       # Speed of scrolling #
+
+     var gravity = 0.4            # Gravity for fish #
+     var flapHeight = 6.0         # Fish jump height #
+
+     FishType fish                # Our fish see Type FishType above#
+
+     # Images #
+     var bgImage[1]               # Array to hold the references to our images #
+     var flappyImages[3]          # Array that holds the fish images #
+     var pipeImages[3]            # Array that holds the pipe images #
+     var topWavesImages[1]        # Array that holds the top waves images #
+     var groundImages[1]          # Array that holds the ground images #
+     var para1Images[1]           # Array that holds the 1st parallax image scroller #
+     var para2Images[1]           # Array that holds the 2nd parallax image scroller #
+
+
+     # Resets the value of a single pipe at pipes[killPipeIndex] #
+     function killPipe( index )
+     start
+          pipes[index].x = 1000
+          pipes[index].y = 1000
+          pipes[index].dx = 0
+          pipes[index].dy = 0
+          pipes[index].active = 0
+          pipes[index].hasScore = 1
+     end
+
+     # Spawns the pipe on the right side of the screen #
+     function spawnPipe( index,
+                         x, y,
+                         dx, dy )
+     start
+          pipes[index].x = x
+          pipes[index].y = y
+          pipes[index].dx = dx
+          pipes[index].dy = dy
+          pipes[index].active = 1        # Make it active  #
+     end
+
+     # Spawns the pipe on the right side of the screen
+       every 70 frames when game is in play #
+     function spawnPipes()
+     start
+          if( ((frame % 70) == 0) && (gameState == StateGame.Play) ) then
+          start
+              for( var i = 0 to sizeOf(pipes) -1 step 1 )  # iterate through the whole array#
+              start
+                   if( !pipes[i].active ) then             # have we found an inactive pipe? #
+                   start
+                        spawnPipe( i, screenWidth + 64,    # spawn at the right, random y position #
+                                      -200 + random(256) ,scrollSpeed,0)
+                        break
+                   end
+              end
+          end
+     end
+
+     # Moves an active pipes #
+     function movePipe( index )
+     start
+          # move by adding direction to position #
+          pipes[index].x = pipes[index].x + pipes[index].dx
+          # Kill pipe if it goes to the left of the screen #
+          if( pipes[index].x < -pipeWidth ) then killPipe(index)
+
+          # score if pipe position is < than 200 and the pipe has not given its score yet #
+          if( (int(pipes[index].x) <= 200) &&
+              (pipes[index].hasScore) &&
+              fish.state == StateFish.active ) then
+          start
+              pipes[index].hasScore = 0    # set hasScore to false so that it won't add to score multiple times #
+              score = score + 1
+              soundPlay("samples/flappyassets/score.wav")
+          end
+     end
+
+     # Move all our active pipes #
+     function movePipes()
+     start
+          activePipes = 0
+          for( var i = 0 to sizeOf(pipes) -1 step 1 )
+          start
+               if( pipes[i].active ) then   # Only move active pipes #
+               start
+                    movePipe(i)
+                    activePipes = activePipes + 1
+               end
+          end
+     end
+
+     # Draws a pipe, 8 draws since a single pipe comprises
+       of 4 independent images #
+     function drawPipe( index )
+     start
+          # TOP #
+          drawImage( pipes[index].x, pipes[index].y-256),
+                     0,pipeImages[0]
+          drawImage( pipes[index].x+32, pipes[index].y-256),
+                     0,pipeImages[0]
+          drawImage( pipes[index].x, pipes[index].y),
+                     0,pipeImages[1]
+          drawImage( pipes[index].x+32, pipes[index].y),
+                     0,pipeImages[1]
+
+          # Bottom #
+          drawImage( pipes[index].x, pipes[index].y+256+128),
+                     0,pipeImages[0]
+          drawImage( pipes[index].x+32, pipes[index].y+256+128),
+                     0,pipeImages[0]
+          drawImage( pipes[index].x, pipes[index].y+256+128+255),
+                     0,pipeImages[1]
+          drawImage( pipes[index].x+32, pipes[index].y+256+128+255),
+                     0,pipeImages[1]
+
+
+     end
+
+     # Draw all our active pipes #
+     function drawPipes()
+     start
+          for( var i = 0 to sizeOf(pipes) -1 step 1 )
+          start
+               if( pipes[i].active ) then   # Only draw active pipes #
+               start
+                    drawPipe(i)
+               end
+          end
+     end
+
+     # Resets the value of all pipes #
+     function initPipes()
+     start
+         for( var i = 0 to sizeOf(pipes) - 1 step 1)
+         start
+              killPipe(i)
+         end
+     end
+
+     # Resets our fish to default values #
+     function initFish()
+     start
+         fish.state = StateFish.Idle
+         fish.frame = 0
+         fish.x = -20            # Just on the left of the screen #
+         fish.y = 256
+         fish.dx = 5
+         fish.dy = -6.0
+         fish.canJump = 1
+         fish.angle = 0
+     end
+
+     # Animates and draws our fish.
+       Uses DrawTransformedImage since it has scaling and rotation #
+     function animateFish()
+     start
+          if( frame % 8 == 0 ) then fish.frame = (fish.frame + 1) % 2
+          drawTransformedImage(fish.x, fish.y, fish.angle, 1-frame*0.00001, 1-frame*0.00001),0,flappyImages[fish.frame]
+     end
+
+
+     # Do fish logic #
+     function updateFish()
+     start
+          # Is fish active? #
+          if(fish.state == StateFish.Active ) then
+          start
+            if( KeyDown(57) && fish.canJump ) then # Jump when space is pressed #
+            start
+                 fish.canJump = 0
+                 fish.dy = -flapHeight
+                 soundPlay("samples/flappyassets/tap.wav")
+            end
+            if( fish.y < 10 ) then fish.y = 10     # Limit fish  to top of screen #
+            if( fish.dy >= -flapHeight/2) then fish.canJump = 1;
+            fish.x = fish.x + fish.dx    # Move fish #
+            fish.y = fish.y + fish.dy
+            fish.dy = fish.dy + gravity  # Make fish fall down by integration #
+            fish.angle = atan2(fish.dy, 10) * 180/3.141593     # Calc draw angle converted to degrees #
+            # Fish hit the ground #
+            if(fish.y > screenHeight - 24) then
+            start
+                fish.state = StateFish.Dead      # Kill it#
+                gameState = StateGame.GameOver
+                fish.dy = -flapHeight*1.5        # Bounce from ground #
+                soundPlay("samples/flappyassets/bounce.wav")
+            end
+          end
+
+          # Is fish dead? #
+          if(fish.state == StateFish.Dead ) then
+          start
+            fish.x = fish.x + fish.dx
+            fish.y = fish.y + fish.dy
+            fish.dy = fish.dy + gravity
+            fish.angle = fish.angle + 20  # Rotate fish #
+            # Bounce fish when it hits the ground #
+            if(fish.y > screenHeight - 24) then
+            start
+               fish.dy = -flapHeight*1.5
+               soundPlay("samples/flappyassets/bounce.wav")
+            end
+            # Go back to title and reset fish values when we press space #
+            if( KeyDown(57) && (activePipes <= 0) ) then
+            start
+                gameState = StateGame.Title
+                reset()
+            end
+          end
+
+          # Is fish idle? #
+          if(fish.state == StateFish.Idle ) then
+          start
+            fish.x = fish.x + fish.dx
+            fish.y = fish.y + fish.dy
+            fish.dy = sin(frame / 10) * 1.5;    #Move fish in a sinewave pattern#
+            fish.angle = atan2(fish.dy, 10) * 180/3.141593
+            if( fish.x > 200 ) then     # Has the fish arrived at his usual position?#
+            start
+                fish.x = 200            # Limit pos to usual pos #
+                # Start playing when we press a key #
+                if( KeyDown(57)) then
+                start
+                    fish.dx = 0
+                    fish.dy = -flapHeight
+                    fish.state = StateFish.Active
+                    gameState = StateGame.Play
+                end
+            end
+          end
+     end
+
+     # Helper function to draw our collision boxes #
+     function drawCollisionBoxes()
+     start
+          #Pipes#
+          for( var i = 0 to sizeOf(pipes) -1 step 1 )
+          start
+               if( pipes[i].active ) then   # Only move active pipes #
+               start
+                    var x1 = pipes[i].x
+                    var y1 = pipes[i].y-256
+                    var x2 = x1 + pipeWidth
+                    var y2 = y1 + pipeHeight+256
+                    drawLine(x1, y1, x2, y2),+
+                    x1 = pipes[i].x
+                    y1 = pipes[i].y + 256 + 128
+                    x2 = x1 + pipeWidth
+                    y2 = y1 + pipeHeight+256
+                    drawLine(x1, y1, x2, y2),+
+               end
+          end
+          #Fish#
+          drawLine(fish.x-14, fish.y-14, fish.x+14, fish.y+14),+
+     end
+
+     # Handles collision of fish to pipes #
+     function doCollision()
+     start
+          #Pipes#
+          if( fish.state != StateFish.Dead ) then
+          start
+              for( var i = 0 to sizeOf(pipes) -1 step 1 )
+              start
+                   if( pipes[i].active ) then   # Only move active pipes #
+                   start
+                        # Check top pipe collision #
+                        var x1 = pipes[i].x
+                        var y1 = pipes[i].y-256
+                        var x2 = x1 + pipeWidth
+                        var y2 = y1 + pipeHeight+256
+                        var fx1 = fish.x-14
+                        var fy1 = fish.y-14
+                        var fx2 = fish.x+14
+                        var fy2 = fish.y+14
+                        if( boxIntersects(x1,y1,x2,y2,
+                                          fx1,fy1,fx2,fy2 ) ) then
+                        start
+                            fish.state = StateFish.Dead      # Kill if it hits #
+                            gameState = StateGame.GameOver
+                            soundPlay("samples/flappyassets/hit.wav")
+                        end
+                        # Checl bottom collision #
+                        x1 = pipes[i].x
+                        y1 = pipes[i].y + 256 + 128
+                        x2 = x1 + pipeWidth
+                        y2 = y1 + pipeHeight+256
+                        fx1 = fish.x-14
+                        fy1 = fish.y-14
+                        fx2 = fish.x+14
+                        fy2 = fish.y+14
+                        if( boxIntersects(x1,y1,x2,y2,
+                                          fx1,fy1,fx2,fy2 ) ) then
+                        start
+                            fish.state = StateFish.Dead
+                            gameState = StateGame.GameOver
+                            soundPlay("samples/flappyassets/hit.wav")
+                        end
+    
+                   end
+              end
+          end
+     end
+
+     # Draws the display depending on game's current state #
+     function drawHud()
+     start
+          # Draw Title #
+          if( gameState == StateGame.Title ) then
+          start
+               drawString( 70,50,
+                           abs(sin((frame)*0.01)),
+                           abs(sin((frame)*0.05)),
+                           abs(sin((frame)*0.02)),1,"Flappy Sa AB")
+               drawString(80,100,1,1,1,1,"EntwinklerX")
+               drawString(110,150,1,0,0,1,"Relminator")
+               drawString(80,350,0,1,1,1,"Programmers")
+               drawString(100,400,0,1,1,1,"Developers")
+
+               drawString(90,480,abs(sin((frame)*0.31)),
+                           abs(sin((frame)*0.15)),
+                           abs(sin((frame)*0.09)),1,"Press SPACE")
+          end
+
+          # Draw Play #
+          if( gameState == StateGame.Play ) then
+          start
+               drawString(120,50,"Score: " + int(score) )
+          end
+
+          # Game Over #
+          if( gameState == StateGame.GameOver ) then
+          start
+              drawString(120,50,"Score: " + int(score) )
+              drawString(120,150,"Game Over")
+              drawString(90,250,"Press Space")
+              drawString(90,300,"to continue")
+          end
+     end
+
+     # Draws the top waves and the parallax scrollers #
+     function drawScrollers()
+     start
+          # drawScrolledImage() simplifies scrolling a lot #
+          drawScrolledImage(0,0,1,1,frame*0.00685,0), 0, topWavesImages[0]
+          drawScrolledImage(0,screenHeight-128,1,1,frame*0.00185,0), 0, para1Images[0]
+          drawScrolledImage(0,screenHeight-64,1,1,frame*0.00285,0), 0, para2Images[0]
+
+     end
+
+     # Draws everything in the game #
+     function drawAll()
+     start
+        setColor(1,1,1,1)
+        drawImage(0,0),0,bgImage[0]   # Background #
+        drawScrollers()
+        drawPipes()
+        # Separately draw the ground scroller for a better effect #
+        drawScrolledImage(0,screenHeight-24,1,1,frame*0.00685,0), 0, groundImages[0]
+        animateFish()
+        drawHud()
+        #drawCollisionBoxes()#        # Uncomment this to see the collision boxes #
+     end
+
+     # Updates everything in the game #
+     function updateAll()
+     start
+        updateFish()
+        spawnPipes()
+        movePipes()
+        doCollision()
+     end
+
+     # Loads all the necessary images for game use #
+     function loadImages()
+     start
+
+       # Load the images #
+       loadimage("flappyassets/background.png",  bgImage, 0)   # There'sonly 1 BG image #
+       # load the full spriteset to the last index of the array #
+       loadimage("flappyassets/flappybirdie.png",  flappyImages, sizeof(flappyImages)-1)
+       loadimage("flappyassets/pipes.png",  pipeImages, sizeof(flappyImages)-1)
+       loadimage("flappyassets/topwaves.png",  topWavesImages, sizeof(topWavesImages)-1)
+       loadimage("flappyassets/ground.png",  groundImages, sizeof(groundImages)-1)
+       loadimage("flappyassets/para1.png",  para1Images, sizeof(para1Images)-1)
+       loadimage("flappyassets/para2.png",  para2Images, sizeof(para2Images)-1)
+
+       # Get sub images since out fish image is composed of 2 sub-images #
+       # Remember we loaded the spriteset to the last index so use that as
+         the canvas to get the sub images.#
+       # Get and assign to index 0 #
+       getSubImage(0,0,31,31,flappyImages[sizeof(flappyImages)-1]),flappyImages, 0
+       # Get and assign to index 1 #
+       getSubImage(32,0,63,31,flappyImages[sizeof(flappyImages)-1]),flappyImages, 1
+
+       getSubImage(0,0,31,255,pipeImages[2]),pipeImages, 0
+       getSubImage(32,0,63,255,pipeImages[2]),pipeImages, 1
+
+
+     end
+
+     function loadSounds()
+     start
+        soundInit()
+        soundLoad("samples/flappyassets/bg.wav",1)
+        soundLoad("samples/flappyassets/tap.wav",0)
+        soundLoad("samples/flappyassets/bounce.wav",0)
+        soundLoad("samples/flappyassets/hit.wav",0)
+        soundLoad("samples/flappyassets/score.wav",0)
+     end
+     
+     # Resets the game values #
+     function reset()
+     start
+          gameState = StateGame.Title
+          score = 0
+          initPipes()
+          initFish()
+          soundPlay("samples/flappyassets/bg.wav")
+     end
+
+     # load sound assets #
+     loadSounds()
+
+     # Open a graphics screen #
+     screen(ScreenWidth,ScreenHeight)
+     loadImages()
+     reset()
+
+     # Do the loop until we press ESCAPE or clicked the "X" window button #
+     while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+     start
+        frame = frame + 1   # Increase frame for animation #
+        cls()               # Clear the screen #
+        updateAll()
+        drawAll()
+        delay(1)           # Sleep for 1 millisecond #
+        screenFlip()        # Show the frame buffer #
+     end
+     exit(0)  # Clean up graphics#
+
+end
+

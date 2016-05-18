@@ -1,0 +1,62 @@
+start
+      function meh(pa,pb,pc)
+      start
+          pa = pa + 5
+          print(pa)
+          print(pb)
+          print(pc)
+          return(pa+pb+pc)
+      end
+
+      function foo()
+      start
+          print(1234)
+          print(1234)
+          var x = 10
+          var y = 20
+          var z = 30
+          meh(x,y,z)
+      end
+
+      	var array1[] = {1,2,3,4,5,6,7,8}
+      	var Array2[] = {2,3}
+      	var array3[10]
+      	var strong[] = {"rel","relminator","Anya","Palet"}
+		var a = 1
+		var b = 2
+		var c = 3
+		var s1 = "RELMINATOR"
+		var s2 = " Anya Basic"
+		print(s1+s2)
+		print(c)
+		if( s2 == s2 ) then print("EQUAL")
+		else print("NOT EQUAL")
+		print(s1<s2)
+		print(s1>s2)
+		print(s1<=s2)
+		print(s1>=s2)
+		foo()
+		var s3 = array2[1]
+		print(s3)
+		array3[2] = "AnyaBasic"
+		var index = 2
+		print(array3[index])
+		print(array1[index])
+		a = 1
+		b = 2
+		print(a)
+		print(b)
+		swap(a,b)
+		print(a)
+		print(b)
+		var crap[] = {"rel", "relminator", "Anya", "Palet"}
+		var shoot[] = {"rel", 10.5,"Anya", 11}
+		for( var i = 0 to 3 step 1) print(shoot[i])
+		var pd= "Programmers,Developers"
+		var id = 25
+		print( pd )
+		print( id)
+		swap(pd,id)
+		print( pd )
+     	print( id)
+end

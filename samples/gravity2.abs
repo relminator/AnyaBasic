@@ -1,0 +1,88 @@
+start
+    var classMemory = 8191
+    var classInstanceMemory = 8191
+    #
+        Class creator
+    #
+    var srecycler[classMemory + 1]
+    var ssrecycler[classMemory + 1][classInstanceMemory + 1]
+
+    srecycler[0] = 1
+
+    function createClass()
+    start
+        var node = srecycler[0]
+        if( srecycler[node] == 0 ) then srecycler[0] = node + 1
+        else srecycler[0] = srecycler[node]
+
+        ssrecycler[node][0] = 1
+        return node
+    end
+
+    function classAlloc(myClass)
+    start
+        var node = ssrecycler[myClass][0]
+        if( ssrecycler[myClass][node] == 0 ) then ssrecycler[myClass][0] = node + 1
+        else ssrecycler[myClass][0] = ssrecycler[myClass][node]
+        return node
+    end
+
+    function classDealloc(myClass, classNode)
+    start
+        ssrecycler[myClass][classNode] = ssrecycler[myClass][0]
+        ssrecycler[myClass][0] = classNode
+    end
+
+    function destroyClass(myClass)
+    start
+        var node = ssrecycler[myClass][0]
+        while(node)
+        start
+            ssrecycler[myClass][0] = ssrecycler[myClass][node]
+            node = ssrecycler[myClass][0]
+        end
+
+        srecycler[myClass] = srecycler[0]
+        srecycler[0] = myClass
+    end
+    #
+        classes
+    #
+    var Vector = createClass()
+    var AABB = createClass()
+    var Grid = createClass()
+    var SpatialHash = createClass()
+    var Object = createClass()
+    #
+        Vector
+    #
+    var VectorX[classInstanceMemory]
+    var VectorY[classInstanceMemory]
+
+    function createVector(vx, vy)
+    start
+        var vnode = classAlloc(Vector)
+        VectorX[vnode] = vx
+        VectorY[vnode] = vy
+    end
+
+    function vectorLen2(myVector)
+    start
+        return VectorX[myVector]*VectorX[myVector] + VectorY[myVector]*VectorY[myVector]
+    end
+
+    function vectorLen(myVector)
+    start
+        return sqrt(vectorLen2(myVector))
+    end
+
+    function vectorRad(myVector)
+    start
+        return atan2(VectorY[myVector], VectorX[myVector])
+    end
+
+    function destroyVector(myVector)
+    start
+        classDealloc(Vector, myVector)
+    end
+end

@@ -1,0 +1,642 @@
+# *****************************************************************
+
+  Tagalog Switch
+  Jejemon Colors
+
+  A sample game made using the Jejemon and Tagalog keywords
+
+  Relminator
+
+  **************************************************************** #
+
+szt4rt
+
+     th4yph Ballth4yph
+     szt4rt
+         state = 0         # state #
+         frame = 0         # animation frame #
+         x = 256           # default position #
+         y = 256
+         dx = 0            # default direction #
+         dy = -6.0
+         canJump = 1       # 1 can jump, 0 can't #
+         angle = 0         # angle of rotation for animation #
+         radius = 8
+         isReady = 0
+     ehnd
+
+     # Emulate Enums via th4yphs #
+     # Ball states #
+     th4yph BallState
+     szt4rt
+         Active = 0
+         Dead = 1
+         Idle = 2
+     ehnd
+
+     # Game states #
+     th4yph GameState
+     szt4rt
+         Title = 0
+         Play = 1
+         GameOver = 2
+     ehnd
+
+    th4yph PARTICLE_ID
+    szt4rt
+        BALL = 0
+        EXPLOSION = 1
+    ehnd
+
+
+    th4yph ENEMY_ID
+    szt4rt
+        SINER = 0
+        BOUNCER = 1
+    ehnd
+
+    th4yph Entityth4yph
+    szt4rt
+        x = 0
+        y = 0
+        dx = 0
+        dy = 0
+        angle = 0
+        rotationSpeed = 2
+        id = 0
+        active = 0
+        ticks = 0
+        width = 32
+        height = 32
+        scale = 1
+        HP = 10
+        r = 1
+        g = 1
+        b = 1
+        a = 1
+    ehnd
+
+    # Object pool stats#
+    th4yph EntityPoolStats
+    szt4rt
+        MAX = 1
+        SIZE = 0
+    ehnd
+
+    baryabol MAX_PARTICLES  = 511
+    Entityth4yph particles[MAX_PARTICLES+1]
+    EntityPoolStats particleArrayStats
+    particleArrayStats.max = MAX_PARTICLES
+    particleArrayStats.size = 0
+
+
+    baryabol MAX_ENEMIES = 31
+    Entityth4yph enemies[MAX_ENEMIES+1]
+    EntityPoolStats enemyArrayStats
+    enemyArrayStats.max = MAX_ENEMIES
+    enemyArrayStats.size = 0
+
+    baryabol enemyHalfLength = 40
+
+    Entityth4yph entityG
+
+    baryabol PI = 3.141593
+    baryabol toRadian = PI/180.0
+    baryabol toDegree = 180.0/PI
+
+     baryabol gState = GameState.TITLE
+
+     baryabol score = 0
+
+     # Screen Dimensions #
+     baryabol screenWidth = 512
+     baryabol screenHeight =  512
+
+     # A tick counter I use for some animations #
+     baryabol frame = 0
+
+     baryabol gravity = 0.4            # Gravity for fish #
+     baryabol jumpHeight = 6.0         # Ball jump height #
+
+     Ballth4yph ball                # Our ball see Ballth4yph above#
+
+     baryabol particleImage[1]
+     baryabol bgImages[1]
+
+
+     # ***********************************************************************
+      ENTITY
+      ********************************************************************* #
+    fuwnct!own addEntity( entityArray, entityPool,
+                        entity )
+    szt4rt
+        #baryabol result = addEntityPool.max#
+        kung( entityPool.size < entityPool.max ) dapat
+        szt4rt
+            entityArray[entityPool.size].x = entity.x
+            entityArray[entityPool.size].y = entity.y
+            entityArray[entityPool.size].dx = entity.dx
+            entityArray[entityPool.size].dy = entity.dy
+            entityArray[entityPool.size].angle = entity.angle
+            entityArray[entityPool.size].rotationSpeed = entity.rotationSpeed
+            entityArray[entityPool.size].ID = entity.ID
+            entityArray[entityPool.size].active = 1
+            entityArray[entityPool.size].ticks = 0
+            entityArray[entityPool.size].width = entity.width
+            entityArray[entityPool.size].height = entity.height
+            entityArray[entityPool.size].hp = entity.hp
+            entityArray[entityPool.size].scale = entity.scale
+            entityArray[entityPool.size].r = entity.r
+            entityArray[entityPool.size].g = entity.g
+            entityArray[entityPool.size].b = entity.b
+            entityArray[entityPool.size].a = entity.a
+            entityPool.size = entityPool.size + 1
+            #result =  addEntityPool.size-1#
+        ehnd
+        #return result#
+    ehnd
+
+    fuwnct!own removeEntity( entityArray, entityPool,
+                           entityIndex )
+    szt4rt
+        kung( entityIndex < entityPool.size ) dapat
+        szt4rt
+            # t = a
+              a = b
+              b = t  #
+            entityPool.size = entityPool.size - 1
+            entityArray[entityPool.max] = entityArray[entityIndex]
+            entityArray[entityIndex] = entityArray[entityPool.size]
+            entityArray[entityPool.size] = entityArray[entityPool.max]
+        ehnd
+    ehnd
+
+    fuwnct!own drawEntities(entitiesArray, entitiesStats )
+    szt4rt
+
+        fh0wr( baryabol i = 0 t0h entitiesStats.size - 1 szt3hp 1 )
+        szt4rt
+            kung( entitiesArray[i].active ) dapat
+            szt4rt
+                drawTransformedImage( entitiesArray[i].x, entitiesArray[i].y,
+                                      0,
+                                      entitiesArray[i].scale, entitiesArray[i].scale,
+                                      entitiesArray[i].r, entitiesArray[i].g,entitiesArray[i].b,
+                                      entitiesArray[i].a ), 0,
+                                      particleImage[0]
+
+            ehnd
+        ehnd
+    ehnd
+
+    fuwnct!own killAllEntities( entitiesArray, entitiesStats )
+    szt4rt
+        fh0wr( baryabol i = 0 t0h entitiesStats.max - 1 szt3hp 1 )
+        szt4rt
+            entitiesArray[i].active = 0
+            entitiesArray[i].x = -1000
+            entitiesArray[i].y = -1000
+        ehnd
+        entitiesStats.size = 0
+    ehnd
+
+    fuwnct!own drawEntitiesCollisionBox(entitiesArray, entitiesStats )
+    szt4rt
+
+        fh0wr( baryabol i = 0 t0h entitiesStats.size - 1 szt3hp 1 )
+        szt4rt
+            kung( entitiesArray[i].active ) dapat
+            szt4rt
+                drawLine( entitiesArray[i].x - entitiesArray[i].width/2,
+                          entitiesArray[i].y - entitiesArray[i].height/2,
+                          entitiesArray[i].x + entitiesArray[i].width/2,
+                          entitiesArray[i].y + entitiesArray[i].height/2),+
+            ehnd
+        ehnd
+    ehnd
+
+        # ***********************************************************************
+      PARTICLES
+      ********************************************************************* #
+    fuwnct!own updateParticles()
+    szt4rt
+        fh0wr( baryabol i = 0 t0h particleArrayStats.size - 1 szt3hp 1 )
+        szt4rt
+            kung( particles[i].active ) dapat
+            szt4rt
+                kung( particles[i].id == PARTICLE_ID.BALL ) dapat updateBallParticle( particles[i] )
+                kung( particles[i].id == PARTICLE_ID.EXPLOSION ) dapat updateExplosionParticle( particles[i] )
+            ehnd
+            pagiba
+            szt4rt
+                removeEntity(particles,particleArrayStats, i)
+            ehnd
+        ehnd
+    ehnd
+
+    fuwnct!own updateBallParticle( e )
+    szt4rt
+        e.x = e.x + e.dx
+        e.y = e.y + e.dy
+        e.scale = e.scale - 0.1
+        e.hp = e.hp - 1
+        kung( e.hp < 0 || e.scale < 0 ) dapat e.active = 0
+    ehnd
+
+    fuwnct!own updateExplosionParticle( e )
+    szt4rt
+        e.x = e.x + e.dx
+        e.y = e.y + e.dy
+        e.ticks = e.ticks + 1
+        kung( e.ticks % 3 == 0 ) dapat e.frame = e.frame + 1
+        kung( e.frame >= e.hp ) dapat e.active = 0
+    ehnd
+
+    fuwnct!own spawnBallParticle( x, y, speed, angle, hp  )
+    szt4rt
+            entityG.x = x
+            entityG.y = y
+            entityG.dx = cos(angle) * speed
+            entityG.dy = sin(angle) * speed
+            entityG.angle = angle
+            entityG.rotationSpeed = -10 + random(20)
+            entityG.ID = PARTICLE_ID.BALL
+            entityG.hp = hp
+            entityG.scale = 2
+            entityG.r = random(1);
+            entityG.g = random(1);
+            entityG.b = random(1);
+            entityG.a = random(1);
+            addEntity( particles, particleArrayStats, entityG )
+
+    ehnd
+
+    fuwnct!own spawnExplosionParticle( x, y, speed, numparts  )
+    szt4rt
+        fh0wr( baryabol i = 0 t0h 360 szt3hp 360/numparts )
+        szt4rt
+            entityG.x = x
+            entityG.y = y
+            entityG.dx = cos(i * toRadian) * speed
+            entityG.dy = sin(i * toRadian) * speed
+            entityG.angle = i
+            entityG.rotationSpeed = -20 + random(40)
+            entityG.ID = PARTICLE_ID.BALL
+            entityG.hp = 38
+            entityG.scale = 3
+            addEntity( particles, particleArrayStats, entityG )
+        ehnd
+    ehnd
+
+
+    # ***********************************************************************
+      ENEMIES
+      ********************************************************************* #
+
+    fuwnct!own updateSiner(entity)
+    szt4rt
+        entity.x = entity.x + entity.dx
+        entity.y = entity.y + entity.dy
+        entity.angle = entity.angle + entity.rotationSpeed
+        entity.dx = sin(entity.angle * toRadian)*8
+        kung( entity.y > ScreenHeight + 64 ) dapat entity.active = 0
+    ehnd
+
+    fuwnct!own updateEnemy(entity)
+    szt4rt
+        entity.ticks = entity.ticks + 1
+        kung( entity.ID == ENEMY_ID.SINER ) dapat updateSiner(entity)
+        ehnd
+
+    fuwnct!own spawnEnemies()
+    szt4rt
+        kung( frame % 90 == 0 ) dapat
+        szt4rt
+            entityG.x = random(ScreenWidth)
+            entityG.y = -50
+            entityG.dx = 0
+            entityG.dy = 1 + random(1)
+            entityG.angle = 0
+            entityG.rotationSpeed = -5 + random(10)
+            entityG.ID = ENEMY_ID.SINER
+            entityG.width = 64
+            entityG.height = 64
+            entityG.hp = 30
+            entityG.scale = 3
+            addEntity( enemies, enemyArrayStats, entityG  )
+        ehnd
+    ehnd
+
+    fuwnct!own updateEnemies()
+    szt4rt
+        fh0wr( baryabol i = 0 t0h enemyArrayStats.size - 1 szt3hp 1 )
+        szt4rt
+            kung( enemies[i].active ) dapat
+            szt4rt
+                updateEnemy(enemies[i])
+            ehnd
+            pagiba
+                removeEntity(enemies, enemyArrayStats, i)
+        ehnd
+    ehnd
+
+    fuwnct!own drawEnemy( x, y, ticks )
+    szt4rt
+
+        spawnBallParticle( x, y,
+                           random(2), random(360), 25 + random(1)  )
+
+        drawFancyLine( x-enemyHalfLength, y,
+                       x+enemyHalfLength, y,
+                       40, 0,
+                       enemies[i].r, enemies[i].g,enemies[i].b,
+                       1 )
+
+        baryabol adder = (abs( 7 * sin( frame/ 20.0) ))
+        fh0wr( baryabol j = 0 t0h adder szt3hp 1 )
+		szt4rt
+		   drawFancyLine( x-enemyHalfLength, y,
+					      x+enemyHalfLength, y,
+						  25-(adder*2), 0,
+						  (abs(sin(ticks * 0.01))),
+						  (abs(sin(-ticks * 0.02))),
+						  (abs(sin(-ticks * 0.03))), 1)
+		ehnd
+    ehnd
+
+    fuwnct!own drawEnemies()
+    szt4rt
+
+        fh0wr( baryabol i = 0 t0h enemyArrayStats.size - 1 szt3hp 1 )
+        szt4rt
+            kung( enemies[i].active ) dapat
+            szt4rt
+                drawEnemy( enemies[i].x, enemies[i].y, enemies[i].ticks )
+                drawEnemy( screenWidth - enemies[i].x, enemies[i].y, enemies[i].ticks )
+            ehnd
+        ehnd
+    ehnd
+
+    fuwnct!own collides( x1, y1, x2, y2, e )
+    szt4rt
+        baryabol ax1 =  e.x - enemyHalfLength
+        baryabol ay1 =  e.y - 10
+        baryabol ax2 =  e.x + enemyHalfLength
+        baryabol ay2 =  e.y + 10
+
+        return boxIntersects( x1,y1,x2,y2,
+                              ax1,ay1,ax2,ay2 )
+    ehnd
+
+
+     # ***********************************************************************
+      BALL
+      ********************************************************************* #
+
+     # Resets our ball to default values #
+     fuwnct!own initBall()
+     szt4rt
+         ball.state = BallState.IDLE
+         ball.frame = 0
+         ball.x = 256            #  #
+         ball.y = screenHeight+32
+         ball.dx = 0
+         ball.dy = -6.0
+         ball.canJump = 1
+         ball.angle = 0
+         ball.isReady = 0
+     ehnd
+
+     fuwnct!own animateBall()
+     szt4rt
+          drawEllipse( ball.x, ball.y,
+                       ball.radius, ball.radius, 0,
+                       0,1,0,1),+
+          spawnBallParticle( ball.x, ball.y,
+                             random(2), random(360), 25 + random(1)  )
+
+     ehnd
+
+
+     # Do Ball logic #
+     fuwnct!own updateBall()
+     szt4rt
+          # Is Ball active? #
+          kung(ball.state == BallState.ACTIVE ) dapat
+          szt4rt
+            kung( KeyDown(57) && ball.canJump ) dapat # Jump when space is pressed #
+            szt4rt
+                 ball.canJump = 0
+                 ball.dy = -jumpHeight
+                 soundPlay("samples/jejemongameassets/score.wav")
+                 score = score + 1
+                 r3p34th(0 t0h 20 szt3hp 1)
+                 szt4rt
+                    spawnBallParticle( ball.x, ball.y,
+                                       5, (45+random(90))*toRadian, 25  )
+                 ehnd
+            ehnd
+            kung( ball.y < 10 ) dapat ball.y = 10     # Limit ball  to top of screen #
+            kung( ball.dy >= -jumpHeight/2) dapat ball.canJump = 1;
+            ball.x = ball.x + ball.dx    # Move ball #
+            ball.y = ball.y + ball.dy
+            ball.dy = ball.dy + gravity  # Make ball fall down by integration #
+
+            # Ball hit the ground #
+            kung(ball.y > screenHeight) dapat
+            szt4rt
+                ball.dy = -jumpHeight
+                soundPlay("samples/jejemongameassets/bounce.wav")
+                score = 0
+            ehnd
+          ehnd
+
+          kung(ball.state == BallState.IDLE ) dapat
+          szt4rt
+              kung( KeyDown(57) && ball.isReady ) dapat # Jump when space is pressed #
+              szt4rt
+                  ball.state = BallState.ACTIVE
+                  gState = GameState.PLAY
+              ehnd
+              kung( ball.isReady ) dapat
+                  ball.y = ball.y + sin(frame*0.12)*5
+              pagiba
+              szt4rt
+                  ball.y = ball.y - 5
+                  kung( ball.y < 256 ) dapat ball.isReady = 1
+              ehnd
+          ehnd
+
+          kung(ball.state == BallState.DEAD ) dapat
+          szt4rt
+              ball.y = ball.y + ball.dy
+              ball.dy = ball.dy + gravity  # Make ball fall down by integration #
+
+              # Ball hit the ground #
+              kung(ball.y > screenHeight) dapat
+              szt4rt
+                  ball.dy = -jumpHeight
+                  soundPlay("samples/jejemongameassets/bounce.wav")
+              ehnd
+
+              kung( KeyDown(57) && (enemyArrayStats.size <= 0) ) dapat
+              szt4rt
+                  reset()
+              ehnd
+
+          ehnd
+
+     ehnd
+
+     # ***********************************************************************
+      MAIN
+      ********************************************************************* #
+
+     fuwnct!own doCollision()
+     szt4rt
+        baryabol x1 =  ball.x - 16
+        baryabol y1 =  ball.y - 16
+        baryabol x2 =  ball.x + 16
+        baryabol y2 =  ball.y + 16
+        fh0wr( baryabol i = 0 t0h enemyArrayStats.size - 1 szt3hp 1 )
+        szt4rt
+            kung( enemies[i].active ) dapat
+            szt4rt
+               kung( collides(x1,y1,x2,y2, enemies[i]) ) dapat
+               szt4rt
+                   soundPlay("samples/jejemongameassets/hit.wav")
+                   gState = GameState.GAMEOVER
+                   ball.state = BallState.DEAD
+                   spawnExplosionParticle( ball.x, ball.y, 10, 30  )
+                   spawnExplosionParticle( ball.x, ball.y, 8, 45  )
+                   walangforever
+               ehnd
+            ehnd
+        ehnd
+
+     ehnd
+
+     fuwnct!own drawBackground()
+     szt4rt
+        drawScrolledImage(0,0,1,1,0,-frame*0.00685), 0, bgImages[0]
+     ehnd
+
+     # Draws the display depehnding on game's current state #
+     fuwnct!own drawHud()
+     szt4rt
+          # Draw Title #
+          kung( gState == GameState.Title ) dapat
+          szt4rt
+               drawString( 40,10,
+                           abs(sin((frame)*0.02)),
+                           abs(sin((frame)*0.01)),
+                           abs(sin((frame)*0.05)),1,"Tagalog Switch")
+               drawString( 40,50,
+                           abs(sin((frame)*0.01)),
+                           abs(sin((frame)*0.05)),
+                           abs(sin((frame)*0.02)),1,"Jejemon Colors")
+               drawString(110,150,1,0,0,1,"Relminator")
+               drawString(80,350,0,1,1,1,"Programmers")
+               drawString(100,400,0,1,1,1,"Developers")
+
+               drawString(90,480,abs(sin((frame)*0.31)),
+                           abs(sin((frame)*0.15)),
+                           abs(sin((frame)*0.09)),1,"Press SPACE")
+          ehnd
+
+          # Draw Play #
+          kung( gState == GameState.Play ) dapat
+          szt4rt
+               drawString(120,00,"Score: " + int(score) )
+          ehnd
+
+          # Game Over #
+          kung( gState == GameState.GameOver ) dapat
+          szt4rt
+              drawString(120,00,"Score: " + int(score) )
+              drawString(120,150,"Game Over")
+              kung( enemyArrayStats.size <= 0 ) dapat
+              szt4rt
+                  drawString(90,250,"Press Space")
+                  drawString(90,300,"to continue")
+              ehnd
+          ehnd
+     ehnd
+
+     # Draws everything in the game #
+     fuwnct!own drawAll()
+     szt4rt
+
+        setColor(1,1,1,1)
+        setBlendMode(0)
+        drawBackground()
+        setBlendMode(1)
+        drawEnemies()
+        animateBall()
+        drawEntities( particles, particleArrayStats )
+        setColor(1,1,1,1)
+        drawHud()
+     ehnd
+
+     # Updates everything in the game #
+     fuwnct!own updateAll()
+     szt4rt
+        updateEnemies()
+        updateBall()
+        updateParticles()
+        kung(gState == GameState.PLAY) dapat
+        szt4rt
+            spawnEnemies()
+            doCollision()
+        ehnd
+     ehnd
+
+     fuwnct!own loadImages()
+     szt4rt
+        loadimage("jejemongameassets/flare.png",  particleImage, sizeof(particleImage)-1)
+        loadimage("jejemongameassets/bg.png",  bgImages, 0)
+     ehnd
+
+     fuwnct!own loadSounds()
+     szt4rt
+        soundInit()
+        soundLoad("samples/jejemongameassets/bg.wav",1)
+        soundLoad("samples/jejemongameassets/tap.wav",0)
+        soundLoad("samples/jejemongameassets/bounce.wav",0)
+        soundLoad("samples/jejemongameassets/hit.wav",0)
+        soundLoad("samples/jejemongameassets/score.wav",0)
+     ehnd
+
+     # Resets the game values #
+     fuwnct!own reset()
+     szt4rt
+          gState = GameState.Title
+          score = 0
+          initBall()
+          killAllEntities( particles, particleArrayStats )
+          killAllEntities( enemies, enemyArrayStats )
+          soundPlay("samples/jejemongameassets/bg.wav")
+     ehnd
+
+     # load sound assets #
+     loadSounds()
+
+     # Open a graphics screen #
+     screen(ScreenWidth,ScreenHeight)
+     loadImages()
+
+     reset()
+     # Do the loop until we press ESCAPE or clicked the "X" window button #
+     wh!ll3( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+     szt4rt
+        frame = frame + 1   # Increase frame for animation #
+        cls()               # Clear the screen #
+        updateAll()
+        drawAll()
+        bagalan(1)           # Sleep for 1 millisecond #
+        screenFlip()        # Show the frame buffer #
+     ehnd
+     paalamna(0)  # Clean up graphics#
+
+ehnd
+

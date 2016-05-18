@@ -1,0 +1,785 @@
+start
+	# SETTINGS #
+	var testblock = 0
+	var frames = 100
+	
+	var mapminx = 0
+	var mapminy = 0
+	var mapmaxx = 2048
+	var mapmaxy = 2048
+	var tilesize = 128
+	
+	var doBlack = 0
+	
+	var cameramaxx = 800
+	var cameramaxy = 600
+	var cameracenx = 400
+	var cameraceny = 300
+	var cameraminx = 0
+	var cameraminy = 0
+	var camerawidth = 800
+	var cameraheight = 600
+	var screenwidth = 800
+	var screenheight = 600
+	
+	var colormode = "negative"
+	
+	var maxchunks = 512
+	var chunkradius = 4
+	var chunkmass = 50.265482457436691
+	var chunkpop = maxchunks
+	
+	var maxplanets = 128
+	var planetvelocity = 522
+	var planetradius = 16
+	var planetmass = 804.247719318987069
+	var maxradius2zoom = 64
+	
+	var maxnovas = 10
+	var novaradius = 32
+	var minradius = 10
+	var massloss = 0.2
+	var novapop = maxnovas
+	
+	var aiplayers = 32
+	var warndistance = 2.0
+	
+	var consumableratio = 0.8
+	 
+	  
+	#*************************************************************************************
+	*
+	*	Math functions
+	*
+	*************************************************************************************#
+	var Pi = 3.141592653589793
+
+	function getRadius(area)
+	start
+		return sqrt(area/Pi)
+	end
+	
+	function magnitude2(m2x, m2y)
+	start
+		return m2x*m2x + m2y*m2y
+	end 
+	
+	function magnitude(mx, my)
+	start
+		return sqrt(magnitude2(mx, my))
+	end
+	 
+	  
+	#*************************************************************************************
+	*
+	*	Map and Camera functions
+	*
+	*************************************************************************************#
+	function getRandomX()
+	start
+		return random(mapmaxx)
+	end 
+	
+	function getRandomY()
+	start
+		return random(mapmaxy)
+	end 
+	
+	function boundX(bx)
+	start
+		if(bx < mapminx) then bx = mapminx
+		if(bx > mapmaxx) then bx = mapmaxx
+		return bx
+	end
+	
+	function boundy(by)
+	start
+		if(by < mapminy) then by = mapminy
+		if(by > mapmaxy) then by = mapmaxy
+		return by
+	end
+	
+	function updateCamera()
+	start
+		cameraminx = cameracenx - camerawidth/2
+		cameramaxx = cameracenx + camerawidth/2
+		cameraminy = cameraceny - cameraheight/2
+		cameramaxy = cameraceny + cameraheight/2
+	end
+	
+	function moveCamera(mcx, mcy)
+	start
+		cameracenx = mcx
+		cameraceny = mcy
+		updateCamera()
+	end 
+	
+	function isVisible(ivx, ivy)
+	start
+		return ((ivx < cameramaxx) && (ivx > cameraminx)) && ((ivy < cameramaxy) && (ivy > cameraminy))
+	end
+	
+	var zoomfactor = 1.0
+	
+	function zoom(zfactor)
+	start
+		camerawidth = screenwidth*zfactor
+		cameraheight = screenheight*zfactor
+		updateCamera()
+		zoomfactor = zfactor
+	end
+	
+	function map2screenX(msx)
+	start
+		return (msx - cameraminx)/zoomFactor
+	end
+
+	function map2screenY(msy)
+	start
+		return (msy - cameraminy)/zoomFactor
+	end
+
+	function screen2mapX(smx)
+	start
+		return (smx*zoomFactor) + cameraminx
+	end
+
+	function screen2mapY(smy)
+	start
+		return (smy*zoomFactor) + cameraminy
+	end
+	
+	function ColorSet(csr, csg, csb, csa)
+	start
+		var tempval = 255
+		csr = csr*255
+		csg = csg*255
+		csb = csb*255
+		if("mono" == colormode) then
+		start
+			tempval = 0.2125*csr + 0.7154*csg + 0.0721*csb
+			csr = tempval
+			csg = tempval
+			csb = tempval
+		end
+		else if ("negative" == colormode) then 
+		start
+			csr = 255 - csr
+			csg = 255 - csg
+			csb = 255 - csb 
+		end 
+		
+		setColor(csr/255, csg/255, csb/255, csa)
+	end
+	
+	function drawMap()
+	start
+		cls(0, 0, 0, 0)
+		ColorSet(0.5, 0.5, 0.5, 0.75)
+		var dmx1 = 0
+		var dmx2 = 0
+		var dmy1 = 0
+		var dmy2 = 0
+		for(var dmx = mapminx to mapmaxx step tilesize)
+		start
+			dmx1 = map2screenX(dmx)
+			dmy1 = map2screenY(mapminy)
+			dmx2 = map2screenX(dmx)
+			dmy2 = map2screenY(mapmaxy)
+			if((cameraminx < dmx) && (cameramaxx > dmx)) then drawLine(dmx1, dmy1, dmx2, dmy2)
+		end
+		for(var dmy = mapminy to mapmaxy step tilesize)
+		start
+			dmx1 = map2screenX(mapminx)
+			dmy1 = map2screenY(dmy)
+			dmx2 = map2screenX(mapmaxx)
+			dmy2 = map2screenY(dmy)
+			if((cameraminy < dmy) && (cameramaxy > dmy)) then drawLine(dmx1, dmy1, dmx2, dmy2)
+		end
+	end
+	
+	function drawCircle(dcx, dcy, dcrd, dcr, dcg, dcb)
+	start
+		dcx = map2screenX(dcx)
+		dcy = map2screenY(dcy)
+		ColorSet(dcr, dcg, dcb, 0.75)
+		drawEllipse(dcx, dcy, dcrd, dcrd, 0)+
+		ColorSet(dcr, dcg, dcb, 1)
+		drawEllipse(dcx, dcy, dcrd*0.8, dcrd*0.8, 0)+
+	end
+	#*************************************************************************************
+	*
+	*	Grids
+	*
+	*************************************************************************************#
+	var gridw = 128
+	var gridh = 128
+	var gridr = round(mapmaxy/gridh)
+	var gridc = round(mapmaxx/gridw)
+	var grids = (gridr*gridc)
+	var gridmap[gridc][gridr]
+	var gridcn[grids + 1000][maxchunks]
+	var gridcp[grids + 1000][maxchunks]
+	var gridnn[grids + 1000][maxnovas]
+	var gridnp[grids + 1000][maxnovas]
+	var gridpn[grids + 1000][maxplanets]
+	var gridpp[grids + 1000][maxplanets]
+	var cgrid[maxchunks]
+	var ngrid[maxnovas]
+	var pgrid[maxplanets]
+	var gridx[grids + 1000]
+	var gridy[grids + 1000]
+	
+	function gridnormx(gnx)
+	start
+		return int(gnx/gridw)
+	end
+  
+	function gridnormy(gny)
+	start
+		return int(gny/gridh)
+	end
+  
+	function createGrid(cgx, cgy)
+	start
+		cgx = gridnormx(cgx)
+		cgy = gridnormy(cgy)
+		var id = cgx*gridr + cgy
+		if (id < grids) then
+		start 
+			gridmap[cgx][cgy] = id
+		
+			gridx[id] = cgx*gridw 
+			gridy[id] = cgy*gridh
+		end
+	end
+  
+	function getGrid(ggx, ggy)
+	start
+		return gridmap[gridnormx(ggx)][gridnormy(ggy)]
+	end
+  
+	function GridAddChunk(gacg, gacc)
+	start
+		gridcn[gacg][gacc] = 0
+		gridcp[gacg][gacc] = gridcp[gacg][0]
+		gridcn[gacg][gridcp[gacg][0]] = gacc
+		gridcp[0] = gacc
+    
+		cgrid[gacc] = gacg
+	end
+  
+	function GridRemoveChunk(grcg, grcc)
+	start
+		gridcn[grcg][gridcp[grcg][grcc]] = gridcn[grcg][grcc]
+		gridcp[grcg][gridcn[grcg][grcc]] = gridcp[grcg][grcc]
+		cgrid[grcc] = 0
+	end
+  
+	function GridAddNova(gang, gann)
+	start
+		gridnn[gang][gann] = 0
+		gridnp[gang][gann] = gridnp[gang][0]
+		gridnn[gang][gridnp[gang][0]] = gann
+		gridnp[0] = gann
+    
+		ngrid[gann] = gang
+	end
+  
+	function GridRemoveNova(grng, grnn)
+	start
+		gridnn[grng][gridnp[grng][grnn]] = gridnn[grng][grnn]
+		gridnp[grng][gridnn[grng][grnn]] = gridnp[grng][grnn]
+	end
+  
+	function GridAddPlanet(gapg, gapp)
+	start
+		gridpn[gapg][gapp] = 0
+		gridpp[gapg][gapp] = gridpp[gapg][0]
+		gridpn[gapg][gridpp[gapg][0]] = gapp
+		gridpp[0] = gapp
+    
+		pgrid[gapp] = gapg
+	end
+  
+	function GridRemovePlanet(grpg, grpp)
+	start
+		gridpn[grpg][gridpp[grpg][grpp]] = gridpn[grpg][grpp]
+		gridpp[grpg][gridpn[grpg][grpp]] = gridpp[grpg][grpp]
+		
+		pgrid[grpp] = 0
+	end  
+	
+	function InitGrid()
+	start
+		for(var igx = 0 to (mapmaxx - gridw) step gridw)
+		start
+			for(var igy = 0 to (mapmaxy - gridh) step gridh)
+			start
+				createGrid(igx, igy)
+			end
+		end 
+	end
+	
+	function IsGridVisible(igv)
+	start
+		return (isVisible(gridx[igv], gridy[igv]) || isVisible(gridx[igv] + gridw, gridy[igv])) || (isVisible(gridx[igv], gridy[igv] + gridh) || isVisible(gridx[igv] + gridw, gridy[igv] + gridh)) 
+	end
+	#*************************************************************************************
+	*
+	*	chunks
+	*
+	*************************************************************************************#
+	type Chunk
+	start
+		x = 0
+		y = 0
+		
+		r = 0
+		g = 0
+		b = 0
+	end
+	
+	Chunk chunks[maxchunks]
+	
+	var cn[maxchunks]
+	var cp[maxchunks]
+	
+	var cr[maxchunks]
+	
+	function initChunkAlloc()
+	start
+		cr[maxchunks - 1] = 0
+		for(var ica = 0 to maxchunks - 2 step 1)
+		start
+			cr[ica] = ica + 1
+		end
+	end
+	
+	function createChunk()
+	start
+		var chead = cr[0]
+		cr[0] = cr[chead]
+		
+		chunks[chead].x = getRandomX()
+		chunks[chead].y = getRandomY()
+		chunks[chead].r = 0.25 + random(0.75)
+		chunks[chead].g = 0.25 + random(0.75)
+		chunks[chead].b = 0.25 + random(0.75)
+		
+		cn[chead] = 0
+		cp[chead] = cp[0]
+		cn[cp[0]] = chead
+		cp[0] = chead
+		
+		GridAddChunk(getGrid(chunks[chead].x, chunks[chead].y), chead)
+	end
+	
+	function drawChunk(dc)
+	start
+		if(isVisible(chunks[dc].x, chunks[dc].y))then drawCircle(chunks[dc].x, chunks[dc].y, chunkradius, chunks[dc].r, chunks[dc].g, chunks[dc].b)
+	end
+	
+	function ChunkInit()
+	start
+		repeat(1 to chunkpop step 1) createChunk() 
+	end
+	
+	function destroyChunk(dcc)
+	start
+		cr[dcc] = cr[0]
+		cr[0] = dcc
+		
+		cn[cp[dcc]] = cn[dcc]
+		cp[cn[dcc]] = cp[dcc]
+		
+		GridRemoveChunk(cgrid[dcc], dcc)
+	end
+	#*************************************************************************************
+	*
+	*	novas
+	*
+	*************************************************************************************#
+	type nova
+	start
+		x = 0
+		y = 0
+		r = 0
+		g = 0
+		b = 0
+	end
+	
+	nova novas[maxnovas]
+	
+	var nn[maxnovas]
+	var np[maxnovas]
+	
+	var nr[maxnovas]
+	
+	function initnovaAlloc()
+	start
+		nr[maxnovas - 1] = 0
+		for(var ina = 0 to maxnovas - 2 step 1)
+		start
+			nr[ina] = ina + 1
+		end
+	end
+	
+	function createnova()
+	start
+		var nhead = nr[0]
+		nr[0] = nr[nhead]
+		
+		novas[nhead].x = getRandomX()
+		novas[nhead].y = getRandomY()
+		novas[nhead].r = 0.25 + random(0.75)
+		novas[nhead].g = 0.25 + random(0.75)
+		novas[nhead].b = 0.25 + random(0.75)
+		
+		nn[nhead] = 0
+		np[nhead] = np[0]
+		nn[np[0]] = nhead
+		np[0] = nhead
+		
+		GridAddNova(getGrid(novas[nhead].x, novas[nhead].y), nhead)
+	end
+	
+	function drawNova(dn)
+	start
+		if(isVisible(novas[dn].x, novas[dn].y)) then
+		start 
+			drawCircle(novas[dn].x, novas[dn].y, novaradius/zoomFactor, novas[dn].r, novas[dn].g, novas[dn].b)
+			drawCircle(novas[dn].x, novas[dn].y, novaradius*0.5/zoomFactor, 1 - novas[dn].r, 1 - novas[dn].g, 1 - novas[dn].b)
+		end
+	end
+	
+	function destroyNova(dnn)
+	start
+		nr[dnn] = nr[0]
+		nr[0] = dnn
+		
+		nn[np[dnn]] = nn[dnn]
+		np[nn[dnn]] = np[dnn]
+		
+		novas[dnn].x = 2147483647
+		
+		GridRemoveNova(ngrid[dnn], dnn)
+	end
+	
+	function InitNova()
+	start
+		repeat(1 to novapop step 1) createNova() 
+	end
+	
+	#*************************************************************************************
+	*
+	*	Planets
+	*
+	*************************************************************************************#
+	type Planet
+	start
+		x = 0 
+		y = 0
+		spd = planetvelocity
+		face = 0
+		user = 0 
+		radius = planetradius
+		mass = planetmass
+		
+		r = 0
+		g = 0
+		b = 0
+	end
+	
+	Planet planets[maxplanets]
+	var psize = 0
+	var pn[maxplanets]
+	var pp[maxplanets]
+	
+	function createPlanet(comp)
+	start
+		var phead = psize + 1
+		
+		planets[phead].x = getRandomX()
+		planets[phead].y = getRandomY()
+		
+		planets[phead].face = random(Pi*2)
+		
+		planets[phead].r = 0.25 + random(0.75)
+		planets[phead].g = 0.25 + random(0.75)
+		planets[phead].b = 0.25 + random(0.75)
+		
+		planets[phead].user = comp
+		
+		pn[phead] = 0
+		pp[phead] = pp[0]
+		pn[pp[0]] = phead
+		pp[0] = phead
+		
+		psize = phead
+		
+		GridAddPlanet(getGrid(planets[phead].x, planets[phead].y), phead)
+	end
+	
+	function drawPlanets()
+	start
+		var ang = 0
+		var dp = pn[0]
+		while(dp)
+		start
+			ang = atan2(cameraceny - planets[dp].y,cameracenx - planets[dp].x)
+			if(isVisible(planets[dp].x + planets[dp].radius*cos(ang), planets[dp].y + planets[dp].radius*sin(ang)))then 
+			start 
+				drawCircle(planets[dp].x, planets[dp].y, planets[dp].radius/zoomFactor, planets[dp].r, planets[dp].g, planets[dp].b)
+			end 
+			dp = pn[dp]
+		end
+	end 
+	
+	function UpdatePlanetGrid(spg)
+	start
+		var gsp = getGrid(planets[spg].x, planets[spg].y)
+		if(pgrid[spg] != gsp) then
+		start
+			GridRemovePlanet(pgrid[spg], spg)
+			GridAddPlanet(gsp, spg)
+		end
+	end
+	
+	function respawnPlanet(rpp)
+	start
+		planets[rpp].x = getRandomX()
+		planets[rpp].y = getRandomY()
+		
+		planets[rpp].face = random(Pi*2)
+		
+		planets[rpp].r = 0.25 + random(0.75)
+		planets[rpp].g = 0.25 + random(0.75)
+		planets[rpp].b = 0.25 + random(0.75)
+		
+		planets[rpp].mass = planetmass
+		planets[rpp].radius = planetradius
+		
+		planets[rpp].spd = planetvelocity
+		
+		UpdatePlanetGrid(rpp)
+	end
+	
+	function canEat(cepa, cepb)
+	start
+		return planets[cepa].mass*consumableratio >= planets[cepb].mass
+	end 
+	
+	var tgrids[grids]
+	var gridcount = 0
+	
+	function IsInRange(ipx, ipy, rx, ry, rrange)
+	start
+		return magnitude2(ipx - rx, ipy - ry) <= rrange*rrange
+	end
+	
+	function ClearGridList()
+	start
+		for(var gi = 0 to grids - 1 step 1)
+		start
+			if(tgrids[gi]) then tgrids[gi] = 0
+		end
+		
+		gridcount = 0
+	end
+	
+	function getGridInRange(sx, sy, srange)
+	start
+		var gminx = boundX(sx - srange)
+		var gminy = boundY(sy - srange)
+		var gmaxx = boundX(sx + srange)
+		var gmaxy = boundY(sy + srange)
+		
+		gminx = gridnormx(gminx)
+		gminy = gridnormy(gminy)
+		gmaxx = gridnormx(gmaxx)
+		gmaxy = gridnormy(gmaxy)
+		
+		if(gmaxx >= gridc) then gmaxx = gridc - 1 
+		if(gmaxy >= gridy) then gmaxy = gridr - 1
+		
+		for(var gx = gminx to gmaxx step 1)
+		start
+			for(var gy = gminy to gmaxy step 1)
+			start
+				tgrids[gridcount] = gridmap[gx][gy]
+				gridcount = gridcount + 1
+			end 
+		end 
+	end
+	
+	function updatePlanet(upfps)
+	start
+		var up = pn[0]
+		var tx = 0
+		var ty = 0
+		while(up)
+		start
+			var px = planets[up].x
+			var py = planets[up].y
+			var pr = planets[up].radius
+			var pm = planets[up].mass
+			getGridInRange(px, py, pr*warndistance)
+			
+			var fang = planets[up].face
+			var aang = fang
+			var eang = fang
+			
+			# Iterate grids #
+			for(var cg = 0 to gridcount - 1 step 1)
+			start
+				var ctg = tgrids[cg]
+				
+				# iterate chunks #
+				var ct = gridcn[ctg][0]
+				while(ct)
+				start
+					tx = chunks[ct].x
+					ty = chunks[ct].y
+					if(IsInRange(tx, ty, px, py, pr)) then
+					start
+						pm = pm + chunkmass
+						pr = getRadius(pm)
+						destroyChunk(ct)
+						createChunk()
+					end
+					else
+					start
+						tx = tx - px + cos(eang)
+						ty = ty - py + sin(eang)
+						eang = atan2(ty, tx)
+					end
+					ct = gridcn[ctg][ct]
+				end
+				
+				# iterate novas # 
+				var nt = gridnn[ctg][0]
+				while(nt)
+				start
+					tx = novas[nt].x
+					ty = novas[nt].y
+					if(IsInRange(tx, ty, px, py, pr)) then
+					start
+						pm = pm*(1 - massloss)
+						pr = getRadius(pm)
+						destroyNova(nt)
+						createNova()
+					end
+					nt = gridnn[ctg][nt]
+				end
+				
+				# iterate planets #
+				var pt = gridpn[ctg][0]
+				while(pt)
+				start
+					if(pt != up) then
+					start
+						tx = planets[pt].x
+						ty = planets[pt].y
+						if(canEat(up, pt)) then
+						start
+							if(IsInRange(tx, ty, px, py, pr)) then
+							start
+								pm = pm + planets[pt].mass
+								pr = getRadius(pm)
+								respawnPlanet(pt)
+							end
+							else
+							start 
+								tx = tx - px + cos(aang)
+								ty = ty - py + sin(aang)
+								aang = atan2(ty, tx)
+							end
+						end
+						else if(canEat(pt, up)) then
+						start
+							tx = px - tx + cos(fang)
+							ty = py - ty + sin(fang)
+							fang = atan2(ty, tx)
+						end
+					end
+					pt = gridpn[ctg][pt]
+				end
+			end
+			
+			ClearGridList()
+			
+			if(planets[up].user) then
+			start
+				eang = atan2(sin(eang) + sin(aang) + sin(fang), cos(eang) + cos(aang) + cos(fang))
+				planets[up].x = px + planets[up].spd*cos(eang)*upfps
+				planets[up].y = py + planets[up].spd*sin(eang)*upfps
+			end
+			else
+			start
+				eang = atan2(mouseY() - screenheight/2,mouseX() - screenwidth/2)
+				planets[up].x = px + planets[up].spd*cos(eang)*upfps
+				planets[up].y = py + planets[up].spd*sin(eang)*upfps
+				
+				moveCamera(planets[up].x, planets[up].y)
+				zoom(pr/maxradius2zoom)
+			end
+			planets[up].face = eang
+			planets[up].mass = pm
+			planets[up].radius = pr
+			planets[up].x = boundX(planets[up].x + planets[up].radius) - planets[up].radius
+			planets[up].y = boundy(planets[up].y + planets[up].radius) - planets[up].radius
+			planets[up].x = boundX(planets[up].x - planets[up].radius) + planets[up].radius
+			planets[up].y = boundy(planets[up].y - planets[up].radius) + planets[up].radius
+			
+			UpdatePlanetGrid(up)
+			up = pn[up]
+		end 
+	end
+	
+	function initPlanet()
+	start
+		createPlanet(0)
+		repeat(1 to aiplayers step 1) createPlanet(1)
+	end
+	
+	function DrawChunksNovas()
+	start
+		for(var g = 0 to grids - 1 step 1)
+		start
+			if(IsGridVisible(g)) then 
+			start
+				var tc = gridcn[g][0]
+				while(tc)
+				start
+					drawChunk(tc)
+					tc = gridcn[g][tc]
+				end
+			
+				var tn = gridnn[g][0]
+				while(tn)
+				start
+					drawNova(tn)
+					tn = gridnn[g][tn]
+				end
+			end
+		end
+	end
+	screen(screenwidth, screenheight)
+	InitGrid()
+	InitPlanet()
+	initChunkAlloc()
+	initNovaAlloc()
+	ChunkInit()
+	InitNova()
+	while(!windowclosed())
+	start
+		updatePlanet(1/frames) 
+		drawMap()
+		drawChunksNovas()
+		drawPlanets()
+		screenflip()
+		delay(1000/frames)
+	end
+	exit(0)
+end

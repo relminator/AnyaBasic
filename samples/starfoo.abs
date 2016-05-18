@@ -1,0 +1,1103 @@
+# *****************************************************************
+
+  A Simple Space Shooter(SHMUP)
+
+  Media assets by from google
+
+  Relminator
+
+  **************************************************************** #
+
+start
+
+    # Emulate ENUMS/CONSTANTS using Types#
+    Type KeyValue
+    start
+        RIGHT = 205
+        LEFT = 203
+        UP = 200
+        DOWN = 208
+        ESCAPE = 1
+        SPACE = 57
+    end
+
+    Type ShipState
+    start
+        IDLE = 0
+        ACTIVE = 1
+        DEAD = 2
+    end
+
+    Type ShipType
+    start
+        x = 256
+        y = 400
+        dx = 4
+        dy = 3
+        frame = 0
+        baseFrame = 29
+        state = ShipState.IDLE
+    end
+
+    Type ENEMYID
+    start
+        ASTEROID = 0
+        WAVER = 1
+        FIGHTER = 2
+        RINGER = 3
+        POPCORN = 4
+    end
+
+    Type PARTICLE_ID
+    start
+        SHOT = 0
+        EXPLOSION = 1
+    end
+
+    # This type is used by explosions, bullets and enemies #
+    Type EntityType
+    start
+        x = 0
+        y = 0
+        dx = 0
+        dy = 0
+        angle = 0
+        rotationSpeed = 2
+        frame = 0
+        baseFrame = 0
+        id = ENEMYID.ASTEROID
+        active = 0
+        ticks = 0
+        drawMode = 0
+        drawAngle = 0
+        width = 32
+        height = 32
+        scale = 1
+        HP = 10
+        score =  101
+        hasFired = 0
+        targetAngle = 0
+    end
+
+    # Object pool stats#
+    Type EntityPoolStats
+    start
+        MAX = 1
+        SIZE = 0
+    end
+
+    var PI = 3.141593
+    var toRadian = PI/180.0
+    var toDegree = 180.0/PI
+
+ 	var ScreenWidth =  512
+ 	var ScreenHeight =  600
+ 	var frame = 0
+
+    var MAXBULLETS = 1023
+    EntityType bullets[MAXBULLETS+1]
+    EntityPoolStats bulletArrayStats
+    bulletArrayStats.max = MAXBULLETS
+    bulletArrayStats.size = 0
+
+    var MAXSHOTS = 34
+    var shotSpeed = 16
+    EntityType shots[MAXSHOTS+1]
+    EntityPoolStats shotArrayStats
+    shotArrayStats.max = MAXSHOTS
+    shotArrayStats.size = 0
+
+
+    ShipType ship
+    var GameScore = 0
+
+    var MAXENEMIES = 16
+    EntityType enemies[MAXENEMIES+1]
+    EntityPoolStats enemyArrayStats
+    enemyArrayStats.max = MAXENEMIES
+    enemyArrayStats.size = 0
+
+    var MAX_PARTICLES  = 64
+    EntityType particles[MAX_PARTICLES+1]
+    EntityPoolStats particleArrayStats
+    particleArrayStats.max = MAX_PARTICLES
+    particleArrayStats.size = 0
+
+
+    EntityType entityG
+
+    # Game states #
+    Type StateGame
+    start
+        Title = 0
+        Play = 1
+        GameOver = 2
+        Pause = 2
+    end
+
+    var gameState = StateGame.Title
+
+
+    var bgImage[1]
+    var mainImages[52]
+    # Array to get subimages from #
+    # x, y, width, height #
+    var textureArray[] = { 111,	103,	4,	4,
+	315,	231,	64,	64,
+	451,	326,	44,	26,
+	357,	467,	24,	24,
+	479,	297,	24,	24,
+	377,	297,	50,	24,
+	249,	363,	64,	64,
+	1,	315,	100,	100,
+	111,	1,	100,	100,
+	213,	1,	100,	100,
+	315,	1,	100,	100,
+	1,	111,	100,	100,
+	1,	213,	100,	100,
+	249,	429,	64,	64,
+	249,	231,	64,	64,
+	357,	399,	32,	32,
+    315,	368,	32,	32,
+	315,	402,	32,	32,
+	357,	365,	32,	32,
+	315,	326,	40,	40,
+	315,	297,	60,	27,
+	1,	1,	108,	108,
+	315,	436,	32,	32,
+	315,	470,	32,	32,
+	381,	231,	64,	64,
+	249,	193,	150,	36,
+	167,	193,	80,	80,
+	417,	1,	80,	80,
+	1,	417,	80,	80,
+    167,	111,	80,	80,
+	249,	111,	80,	80,
+	331,	111,	80,	80,
+	413,	111,	80,	80,
+	103,	450,	46,	46,
+	167,	373,	69,	75,
+	103,	111,	62,	117,
+	447,	231,	64,	64,
+	103,	328,	59,	54,
+    249,	297,	64,	64,
+	103,	230,	48,	96,
+	357,	326,	42,	37,
+	167,	275,	64,	96,
+	103,	384,	49,	64,
+	401,	193,	60,	27,
+	357,	433,	32,	32,
+	417,	83,	70,	24,
+	167,	450,	70,	24,
+	167,	476,	70,	24,
+	249,	495,	64,	16,
+	463,	193,	48,	24,
+	429,	297,	48,	24,
+	401,	326,	48,	24
+    }
+
+    # ***********************************************************************
+      UTILS
+      ********************************************************************* #
+    function clamp( a, min, max )
+	start
+	    if( a < min ) then a = min
+		if( a > max ) then a = max
+		return a
+	end
+
+    function inRange( a, min, max )
+	start
+	    var res = 0
+	    if( (a >= min) &&  (a <= max) ) then
+            res = 1
+		return res
+	end
+
+    # ***********************************************************************
+      ENTITY
+      ********************************************************************* #
+    function addEntity( entityArray, entityPool,
+                        entity )
+    start
+        #var result = addEntityPool.max#
+        if( entityPool.size < entityPool.max ) then
+        start
+            entityArray[entityPool.size].x = entity.x
+            entityArray[entityPool.size].y = entity.y
+            entityArray[entityPool.size].dx = entity.dx
+            entityArray[entityPool.size].dy = entity.dy
+            entityArray[entityPool.size].angle = entity.angle
+            entityArray[entityPool.size].rotationSpeed = entity.rotationSpeed
+            entityArray[entityPool.size].frame = entity.frame
+            entityArray[entityPool.size].baseFrame = entity.baseFrame
+            entityArray[entityPool.size].ID = entity.ID
+            entityArray[entityPool.size].active = 1
+            entityArray[entityPool.size].ticks = 0
+            entityArray[entityPool.size].drawMode = entity.drawMode
+            entityArray[entityPool.size].drawAngle = entity.angle
+            entityArray[entityPool.size].width = entity.width
+            entityArray[entityPool.size].height = entity.height
+            entityArray[entityPool.size].hp = entity.hp
+            entityArray[entityPool.size].scale = entity.scale
+            entityArray[entityPool.size].score = entity.score
+            entityArray[entityPool.size].hasFired = 0
+            entityArray[entityPool.size].targetAngle = entity.angle
+            entityPool.size = entityPool.size + 1
+            #result =  addEntityPool.size-1#
+        end
+        #return result#
+    end
+
+    function removeEntity( entityArray, entityPool,
+                           entityIndex )
+    start
+        if( entityIndex < entityPool.size ) then
+        start
+            # t = a
+              a = b
+              b = t  #
+            entityPool.size = entityPool.size - 1
+            entityArray[entityPool.max] = entityArray[entityIndex]
+            entityArray[entityIndex] = entityArray[entityPool.size]
+            entityArray[entityPool.size] = entityArray[entityPool.max]
+        end
+    end
+
+    function drawEntities(entitiesArray, entitiesStats )
+    start
+
+        for( var i = 0 to entitiesStats.size - 1 step 1 )
+        start
+            if( entitiesArray[i].active ) then
+            start
+                drawTransformedImage( entitiesArray[i].x, entitiesArray[i].y,
+                                      entitiesArray[i].drawAngle,
+                                      entitiesArray[i].scale, entitiesArray[i].scale ), 0,
+                                      mainImages[entitiesArray[i].baseFrame+entitiesArray[i].frame]
+
+            end
+        end
+    end
+
+    function killAllEntities( entitiesArray, entitiesStats )
+    start
+        for( var i = 0 to entitiesStats.max - 1 step 1 )
+        start
+            entitiesArray[i].active = 0
+            entitiesArray[i].x = -1000
+            entitiesArray[i].y = -1000
+        end
+        entitiesStats.size = 0
+    end
+
+    function drawEntitiesCollisionBox(entitiesArray, entitiesStats )
+    start
+
+        for( var i = 0 to entitiesStats.size - 1 step 1 )
+        start
+            if( entitiesArray[i].active ) then
+            start
+                drawLine( entitiesArray[i].x - entitiesArray[i].width/2,
+                          entitiesArray[i].y - entitiesArray[i].height/2,
+                          entitiesArray[i].x + entitiesArray[i].width/2,
+                          entitiesArray[i].y + entitiesArray[i].height/2),+
+            end
+        end
+    end
+
+    # ***********************************************************************
+      BULLETS
+      ********************************************************************* #
+    function updateBullets()
+    start
+        for( var i = 0 to bulletArrayStats.size - 1 step 1 )
+        start
+            if( bullets[i].active ) then
+            start
+                bullets[i].x = bullets[i].x + bullets[i].dx
+                bullets[i].y = bullets[i].y + bullets[i].dy
+                bullets[i].drawAngle = bullets[i].angle
+                if( bullets[i].x < -64 ) then bullets[i].active = 0
+                if( bullets[i].y < -64 ) then bullets[i].active = 0
+                if( bullets[i].x > ScreenWidth + 64 ) then bullets[i].active = 0
+                if( bullets[i].y > ScreenHeight + 64 ) then bullets[i].active = 0
+            end
+            else
+            start
+                removeEntity(bullets, bulletArrayStats, i)
+            end
+        end
+    end
+
+    function fireSpread( x, y,
+                         targetAngle, numBullets,
+                         sectorAngle, speed, baseFrame )
+    start
+        var angleInc = sectorAngle/numBullets
+        var startAngle = targetAngle - sectorAngle/2
+        repeat( 0 to numBullets - 1 step 1 )
+        start
+            entityG.x = x
+            entityG.y = y
+            entityG.dx = cos(startAngle)*speed
+            entityG.dy = sin(startAngle)*speed
+            entityG.angle = startAngle*toDegree
+            entityG.rotationSpeed = 0
+            entityG.frame = 0
+            entityG.baseFrame = baseFrame
+            entityG.ID = 0
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.width = 4
+            entityG.height = 4
+            entityG.scale = 1
+            addEntity( bullets, bulletArrayStats, entityG )
+            startAngle =  startAngle + angleInc
+        end
+    end
+
+    function fireRing( x, y,
+                       targetAngle, numBullets,
+                       sectorAngle, speed, baseFrame, radius )
+    start
+        var angleInc = sectorAngle/numBullets
+        var startAngle = targetAngle - sectorAngle/2.0
+        repeat( 0 to numBullets - 1 step 1)
+        start
+            entityG.x = x + cos(startAngle) * radius
+            entityG.y = y + sin(startAngle) * radius
+            entityG.dx = cos(targetAngle)*speed
+            entityG.dy = sin(targetAngle)*speed
+            entityG.angle = targetAngle*toDegree
+            entityG.rotationSpeed = 0
+            entityG.frame = 0
+            entityG.baseFrame = baseFrame
+            entityG.ID = 0
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.width = 4
+            entityG.height = 4
+            entityG.scale = 1
+            addEntity( bullets, bulletArrayStats, entityG )
+            startAngle =  startAngle + angleInc
+        end
+    end
+
+    # ***********************************************************************
+      SHOTS
+      ********************************************************************* #
+    function updateShots()
+    start
+        for( var i = 0 to shotArrayStats.size - 1 step 1 )
+        start
+            if( shots[i].active ) then
+            start
+                shots[i].x = shots[i].x + shots[i].dx
+                shots[i].y = shots[i].y + shots[i].dy
+                if( shots[i].y < -64 ) then shots[i].active = 0
+            end
+            else
+            start
+                removeEntity(shots,shotArrayStats, i)
+            end
+        end
+    end
+
+    function fireShots( x, y )
+    start
+        if( frame % 5 == 0 ) then
+        start
+            # center #
+            entityG.x = x
+            entityG.y = y-32
+            entityG.dx = 0
+            entityG.dy = -shotSpeed
+            entityG.angle = 270
+            entityG.rotationSpeed = 0
+            entityG.frame = 0
+            entityG.baseFrame = 2
+            entityG.ID = 0
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.width = 24
+            entityG.height = 24
+            entityG.hp = 1
+            entityG.scale = 1
+            addEntity( shots, shotArrayStats, entityG )
+
+            # left #
+            entityG.x = x-32
+            entityG.y = y
+            entityG.dx = 0
+            entityG.dy = -shotSpeed
+            entityG.angle = 270
+            entityG.rotationSpeed = 0
+            entityG.frame = 0
+            entityG.baseFrame = 48
+            entityG.ID = 0
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.width = 24
+            entityG.height = 32
+            entityG.hp = 1
+            entityG.scale = 1
+            addEntity( shots, shotArrayStats, entityG )
+
+            # Right #
+            entityG.x = x+32
+            entityG.y = y
+            entityG.dx = 0
+            entityG.dy = -shotSpeed
+            entityG.angle = 270
+            entityG.rotationSpeed = 0
+            entityG.frame = 0
+            entityG.baseFrame = 48
+            entityG.ID = 0
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.width = 24
+            entityG.height = 32
+            entityG.hp = 1
+            entityG.scale = 1
+            addEntity( shots, shotArrayStats, entityG )
+
+            soundPlay("samples/starfooassets/shot.wav")
+        end
+    end
+
+
+    # ***********************************************************************
+      PARTICLES
+      ********************************************************************* #
+    function updateParticles()
+    start
+        for( var i = 0 to particleArrayStats.size - 1 step 1 )
+        start
+            if( particles[i].active ) then
+            start
+                if( particles[i].id == PARTICLE_ID.SHOT ) then updateShotParticle( particles[i] )
+                if( particles[i].id == PARTICLE_ID.EXPLOSION ) then updateExplosionParticle( particles[i] )
+            end
+            else
+            start
+                removeEntity(particles,particleArrayStats, i)
+            end
+        end
+    end
+
+    function updateShotParticle( e )
+    start
+        e.x = e.x + e.dx
+        e.y = e.y + e.dy
+        e.drawAngle = e.drawAngle + e.rotationSpeed
+        e.scale = e.scale - 0.1
+        e.hp = e.hp - 1
+        if( e.hp < 0 ) then e.active = 0
+    end
+
+    function updateExplosionParticle( e )
+    start
+        e.x = e.x + e.dx
+        e.y = e.y + e.dy
+        e.drawAngle = e.drawAngle + e.rotationSpeed
+        e.ticks = e.ticks + 1
+        if( e.ticks % 3 == 0 ) then e.frame = e.frame + 1
+        if( e.frame >= e.hp ) then e.active = 0
+    end
+
+    function spawnShotParticle( x, y, speed, angle, hp  )
+    start
+            entityG.x = x
+            entityG.y = y
+            entityG.dx = cos(angle) * speed
+            entityG.dy = sin(angle) * speed
+            entityG.angle = angle
+            entityG.rotationSpeed = -10 + random(20)
+            entityG.frame = 0
+            entityG.baseFrame = 19
+            entityG.ID = PARTICLE_ID.SHOT
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.hp = hp
+            entityG.scale = 2
+            addEntity( particles, particleArrayStats, entityG )
+
+    end
+
+    function spawnExplosionParticle( x, y, speed, angle  )
+    start
+            entityG.x = x
+            entityG.y = y
+            entityG.dx = cos(angle) * speed
+            entityG.dy = sin(angle) * speed
+            entityG.angle = angle
+            entityG.rotationSpeed = -20 + random(40)
+            entityG.frame = 0
+            entityG.baseFrame = 6
+            entityG.ID = PARTICLE_ID.EXPLOSION
+            entityG.drawMode = 0
+            entityG.drawAngle = 0
+            entityG.hp = 8   # numFrames #
+            entityG.scale = 2
+            addEntity( particles, particleArrayStats, entityG )
+    end
+
+
+    # ***********************************************************************
+      SHIP
+      ********************************************************************* #
+    function updateShip()
+    start
+        if( ship.state == ShipState.IDLE ) then
+        start
+            var dx = sin(frame*0.1)*10
+            ship.x = ScreenWidth/2 + dx
+            if(ship.y > 300) then ship.y = ship.y - 5
+            if(dx < 0 ) then
+            start
+                ship.frame = ship.frame + 0.4
+                if( ship.frame >= 3 ) then ship.frame = 3
+            end
+            if(dx > 0 ) then
+            start
+                ship.frame = ship.frame - 0.4
+                if( ship.frame <= -3 ) then ship.frame = -3
+            end
+            fireShots( ship.x, ship.y )
+
+        end
+
+        if( ship.state == ShipState.ACTIVE ) then
+        start
+            if( keyDown(KeyValue.UP) ) then ship.y = ship.y - ship.dy
+            if( keyDown(KeyValue.DOWN) ) then ship.y = ship.y + ship.dy
+            if( keyDown(KeyValue.LEFT) ) then
+            start
+                ship.x = ship.x - ship.dx
+                ship.frame = ship.frame - 0.4
+                if( ship.frame <= -3 ) then ship.frame = -3
+            end
+            if( keyDown(KeyValue.RIGHT) ) then
+            start
+                ship.x = ship.x + ship.dx
+                ship.frame = ship.frame + 0.4
+                if( ship.frame >= 3 ) then ship.frame = 3
+            end
+            ship.frame = ship.frame * 0.9
+
+            ship.x = clamp(ship.x, 32, ScreenWidth - 32)
+            ship.y = clamp(ship.y, 32, ScreenHeight - 32)
+            fireShots( ship.x, ship.y )
+        end
+
+        if( ship.state == ShipState.DEAD ) then
+        start
+            ship.x = ScreenWidth/2
+            ship.y = ScreenHeight + 100
+        end
+
+    end
+
+    function drawShip()
+    start
+        drawTransformedImage( ship.x, ship.y,
+                              0,
+                              1, 1 ),
+                              0,
+                              mainImages[ship.baseFrame + ship.frame]
+
+    end
+
+    # ***********************************************************************
+      ENEMIES
+      ********************************************************************* #
+
+
+    function updateAsteroid(entity)
+    start
+        entity.x = entity.x + entity.dx
+        entity.y = entity.y + entity.dy
+        entity.angle = entity.angle + entity.rotationSpeed
+        entity.drawAngle = entity.angle
+        if( entity.y > ScreenHeight + 64 ) then entity.active = 0
+    end
+
+    function updateWaver(entity)
+    start
+        entity.x = entity.x + entity.dx
+        entity.y = entity.y + entity.dy
+        entity.angle = entity.angle + entity.rotationSpeed
+        entity.dx = sin(entity.angle * toRadian)*3
+        entity.drawAngle = atan2(entity.dy,entity.dx) * toDegree
+        if( (entity.ticks % 2 == 0) && (entity.y > 50) && (entity.y < 200) ) then
+        start
+            fireSpread( entity.x, entity.y,
+                        entity.ticks * 0.08, 2, PI*2, 6, 3 )
+            fireSpread( entity.x, entity.y,
+                        -entity.ticks * 0.08, 2, PI*2, 6, 3 )
+        end
+        if( entity.y > ScreenHeight + 64 ) then entity.active = 0
+    end
+
+    function updateFighter(entity)
+    start
+        entity.x = entity.x + entity.dx
+        entity.y = entity.y + entity.dy
+        if( inRange(entity.ticks, 50, 150) ) then
+        start
+            entity.dy = 0
+            var a = atan2(ship.y - entity.y,
+                          ship.x - entity.x) * toDegree
+            if( entity.angle > a) then entity.angle = entity.angle - 1
+            if( entity.angle < a) then entity.angle = entity.angle + 1
+            if( (entity.ticks >= 120) && (entity.ticks % 10 == 0) ) then
+            start
+                if (entity.ticks == 120) then entity.targetAngle = a
+                fireSpread( entity.x, entity.y,
+                         entity.targetAngle*toRadian, 14, PI * 0.6, 4, 45 )
+            end
+
+        end
+        else
+        start
+            entity.dy = 5
+            if( entity.angle > 90) then entity.angle = entity.angle - 1
+            if( entity.angle < 90) then entity.angle = entity.angle + 1
+        end
+        entity.drawAngle = entity.angle
+        if( entity.y > ScreenHeight + 64 ) then entity.active = 0
+    end
+
+
+    function updateRinger(entity)
+    start
+        entity.x = entity.x + entity.dx
+        entity.y = entity.y + entity.dy
+        entity.angle = entity.angle + entity.rotationSpeed
+        entity.drawAngle = entity.angle
+        entity.targetAngle = atan2( ship.y - entity.y,
+                                    ship.x - entity.x) * toDegree
+
+        if((entity.ticks % 15 == 0) &&  (entity.y < 200) ) then
+                fireRing( entity.x, entity.y,
+                          entity.targetAngle*toRadian,
+                          14, PI * 2, 10, 4, 15 )
+        if( entity.y > ScreenHeight + 64 ) then entity.active = 0
+    end
+
+    function updatePopcorn(entity)
+    start
+        entity.x = entity.x + entity.dx
+        entity.y = entity.y + entity.dy
+        if( entity.y > 0 ) then
+        start
+            entity.angle = entity.angle + entity.rotationSpeed
+            entity.dx = sin(entity.angle * toRadian)*6
+        end
+        else entity.dx = 0
+        entity.drawAngle = entity.angle*3
+        if( entity.y > ScreenHeight + 64 ) then entity.active = 0
+    end
+
+    function updateEnemy(entity)
+    start
+        entity.ticks = entity.ticks + 1
+        if( entity.ID == ENEMYID.ASTEROID ) then updateAsteroid(entity)
+        if( entity.ID == ENEMYID.WAVER ) then updateWaver(entity)
+        if( entity.ID == ENEMYID.FIGHTER ) then updateFighter(entity)
+        if( entity.ID == ENEMYID.RINGER ) then updateRinger(entity)
+        if( entity.ID == ENEMYID.POPCORN ) then updatePopcorn(entity)
+    end
+
+    function spawnEnemies()
+    start
+        if( frame % 60 == 0 ) then
+        start
+            var randy =  floor(random(5))
+            if( int(randy) == 0 ) then
+            start
+                entityG.x = random(ScreenWidth)
+                entityG.y = -50
+                entityG.dx = 0
+                entityG.dy = 2 + random(5)
+                entityG.angle = 0
+                entityG.rotationSpeed = -15 + random(30)
+                entityG.frame = 0
+                entityG.baseFrame = 34
+                entityG.ID = ENEMYID.ASTEROID
+                entityG.drawMode = 0
+                entityG.drawAngle = 0
+                entityG.width = 64
+                entityG.height = 64
+                entityG.hp = 30
+                entityG.scale = 1
+                addEntity( enemies, enemyArrayStats, entityG  )
+            end
+
+            if( int(randy) == 1 ) then
+            start
+                entityG.x = random(ScreenWidth)
+                entityG.y = -50
+                entityG.dx = 0
+                entityG.dy = 2 + random(5)
+                entityG.angle = 0
+                entityG.rotationSpeed = -5 + random(10)
+                entityG.frame = 0
+                entityG.baseFrame = 42
+                entityG.ID = ENEMYID.WAVER
+                entityG.drawMode = 0
+                entityG.drawAngle = 0
+                entityG.width = 50
+                entityG.height = 50
+                entityG.hp = 20
+                entityG.scale = 1
+                addEntity( enemies, enemyArrayStats, entityG  )
+            end
+
+            if( int(randy) == 2 ) then
+            start
+                entityG.x = random(ScreenWidth)
+                entityG.y = -50
+                entityG.dx = 0
+                entityG.dy = 5
+                entityG.angle = 90
+                entityG.rotationSpeed = 0
+                entityG.frame = 0
+                entityG.baseFrame = 41
+                entityG.ID = ENEMYID.FIGHTER
+                entityG.drawMode = 0
+                entityG.drawAngle = 0
+                entityG.width = 70
+                entityG.height = 50
+                entityG.hp = 40
+                entityG.scale = 1
+                addEntity( enemies, enemyArrayStats, entityG  )
+            end
+
+            if( int(randy) == 3 ) then
+            start
+                entityG.x = random(ScreenWidth)
+                entityG.y = -50
+                entityG.dx = 0
+                entityG.dy = 5
+                entityG.angle = 90
+                entityG.rotationSpeed = 0
+                entityG.frame = 0
+                entityG.baseFrame = 36
+                entityG.ID = ENEMYID.RINGER
+                entityG.drawMode = 0
+                entityG.drawAngle = 0
+                entityG.width = 50
+                entityG.height = 50
+                entityG.hp = 15
+                entityG.scale = 1
+                addEntity( enemies, enemyArrayStats, entityG  )
+            end
+
+
+            if( int(randy) == 4 ) then
+            start
+                var zposx = random(ScreenWidth)
+                var zposy = -50
+                var zspeedy = 2
+                var zrot = -10 + random(20)
+                for( var i = 0 to 5 step 1)
+                start
+                    entityG.x = zposx
+                    entityG.y = zposy - 64* i
+                    entityG.dx = 0
+                    entityG.dy = zspeedy
+                    entityG.angle = 0
+                    entityG.rotationSpeed = zrot
+                    entityG.frame = 0
+                    entityG.baseFrame = 38
+                    entityG.ID = ENEMYID.POPCORN
+                    entityG.drawMode = 0
+                    entityG.drawAngle = 0
+                    entityG.width = 50
+                    entityG.height = 50
+                    entityG.hp = 5
+                    entityG.scale = 1
+                    addEntity( enemies, enemyArrayStats, entityG  )
+                end
+            end
+
+        end
+    end
+
+    function updateEnemies()
+    start
+        for( var i = 0 to enemyArrayStats.size - 1 step 1 )
+        start
+            if( enemies[i].active ) then
+            start
+                updateEnemy(enemies[i])
+            end
+            else
+                removeEntity(enemies, enemyArrayStats, i)
+        end
+    end
+
+                                                              ``
+    # ***********************************************************************
+      ALL
+      ********************************************************************* #
+    function doCollisions()
+    start
+        #shots2enemies#
+        for( var i = 0 to shotArrayStats.size - 1 step 1 )
+        start
+            if( shots[i].active ) then
+            start
+                var ax1 = shots[i].x - shots[i].width/2
+                var ay1 = shots[i].y - shots[i].height/2
+                var ax2 = shots[i].x + shots[i].width/2
+                var ay2 = shots[i].y + shots[i].height/2
+                for( var j = 0 to enemyArrayStats.size - 1 step 1 )
+                start
+                    var bx1 = enemies[j].x - enemies[j].width/2
+                    var by1 = enemies[j].y - enemies[j].height/2
+                    var bx2 = enemies[j].x + enemies[j].width/2
+                    var by2 = enemies[j].y + enemies[j].height/2
+                    if( boxIntersects( ax1, ay1, ax2, ay2,
+                                       bx1, by1, bx2, by2 ) ) then
+                    start
+                        shots[i].active = 0
+                        enemies[j].hp = enemies[j].hp - shots[i].hp
+                        spawnShotParticle( shots[i].x, shots[i].y,
+                                           2 + random(4), (180 + 45 + random(90))*toRadian ,
+                                           10+random(10)  )
+                        soundPlay("samples/starfooassets/enemyhit.wav")
+                        if( enemies[j].hp < 0 ) then
+                        start
+                            spawnExplosionParticle( enemies[j].x, enemies[j].y,
+                                                    0, 0 )
+                            GameScore = GameScore + enemies[j].score
+                            enemies[j].active = 0
+                            enemies[j].x = -1000
+                            enemies[j].y = -1000
+                            soundPlay("samples/starfooassets/explode01.wav")
+                        end
+                        break
+                    end
+                end
+            end
+        end
+
+        # Bullet to ship #
+        for( var i = 0 to bulletArrayStats.size - 1 step 1 )
+        start
+            if( bullets[i].active ) then
+            start
+                var ax1 = bullets[i].x - bullets[i].width/2
+                var ay1 = bullets[i].y - bullets[i].height/2
+                var ax2 = bullets[i].x + bullets[i].width/2
+                var ay2 = bullets[i].y + bullets[i].height/2
+
+                var bx1 = ship.x - 4
+                var by1 = ship.y - 4
+                var bx2 = ship.x + 4
+                var by2 = ship.y + 4
+                if( boxIntersects( ax1, ay1, ax2, ay2,
+                                   bx1, by1, bx2, by2 ) ) then
+                    start
+                        spawnExplosionParticle( ship.x, ship.y,
+                                                0, 0 )
+                        gameState = StateGame.GameOver
+                        ship.state = ShipState.DEAD
+                        soundPlay("samples/starfooassets/explode01.wav")
+                        break
+                    end
+            end
+         end
+
+        # Enemy to ship #
+        for( var i = 0 to enemyArrayStats.size - 1 step 1 )
+        start
+            if( enemies[i].active ) then
+            start
+                var ax1 = enemies[i].x - enemies[i].width/2
+                var ay1 = enemies[i].y - enemies[i].height/2
+                var ax2 = enemies[i].x + enemies[i].width/2
+                var ay2 = enemies[i].y + enemies[i].height/2
+
+                var bx1 = ship.x - 4
+                var by1 = ship.y - 4
+                var bx2 = ship.x + 4
+                var by2 = ship.y + 4
+                if( boxIntersects( ax1, ay1, ax2, ay2,
+                                   bx1, by1, bx2, by2 ) ) then
+                    start
+                        spawnExplosionParticle( ship.x, ship.y,
+                                                0, 0 )
+                        gameState = StateGame.GameOver
+                        ship.state = ShipState.DEAD
+                        soundPlay("samples/starfooassets/explode01.wav")
+                        break
+                    end
+            end
+         end
+
+
+    end
+
+
+     # Draws the display depending on game's current state #
+     function drawHud()
+     start
+          # Draw Title #
+          if( gameState == StateGame.Title ) then
+          start
+               drawString( 130,50,
+                           abs(sin((frame)*0.01)),
+                           abs(sin((frame)*0.05)),
+                           abs(sin((frame)*0.02)),1,"STAR FOO")
+               drawString(110,150,1,0,0,1,"Relminator")
+               drawString(80,350,0,1,1,1,"Programmers")
+               drawString(100,400,0,1,1,1,"Developers")
+               drawString(90,480,abs(sin((frame)*0.31)),
+                           abs(sin((frame)*0.15)),
+                           abs(sin((frame)*0.09)),1,"Press SPACE")
+          end
+
+          # Draw Play #
+          if( gameState == StateGame.Play ) then
+          start
+               drawString(0,0,"Score:" + int(gameScore) )
+          end
+
+          # Game Over #
+          if( gameState == StateGame.GameOver ) then
+          start
+              drawString(0,0,"Score:" + int(gameScore) )
+              drawString(120,150,"Game Over")
+              drawString(90,250,"Press Space")
+              drawString(90,300,"to continue")
+          end
+     end
+
+    function updateAll()
+    start
+        if( (gameState == StateGame.Title) ) then
+        start
+            if( keyDown(KeyValue.SPACE) && (ship.y <= 300)) then
+            start
+                gameState = StateGame.Play
+            end
+        end
+
+        if( (gameState == StateGame.Play) ) then
+        start
+            ship.state = ShipState.ACTIVE
+            spawnEnemies()
+        end
+
+        if( (gameState == StateGame.GameOver) ) then
+        start
+            if( keyDown(KeyValue.SPACE) ) then reset()
+        end
+
+        updateEnemies()
+        updateShip()
+        updateBullets()
+        updateShots()
+        updateParticles()
+        doCollisions()
+
+    end
+
+    function drawAll()
+    start
+        setColor(1,1,1,1)
+        setBlendMode(0)
+        drawEntities( enemies, enemyArrayStats )
+        drawShip()
+        drawEntities( shots, shotArrayStats )
+        drawEntities( particles, particleArrayStats )
+
+        setBlendMode(1)
+        drawEntities( bullets, bulletArrayStats )
+
+        #drawEntitiesCollisionBox( bullets, bulletArrayStats )
+        drawEntitiesCollisionBox( enemies, enemyArrayStats )
+        drawEntitiesCollisionBox( shots, shotArrayStats )#
+        drawHud()
+        setBlendMode(0)
+        drawLine(0,0,screenWidth,screenHeight,0,0,0,0.01),+,+
+
+    end
+
+
+    function loadImages()
+    start
+        loadimage("starfooassets/starfooimages.png",  mainImages, sizeof(mainImages)-1)
+        loadimage("starfooassets/bg.png",  bgImage, sizeof(bgImage)-1)
+        var j = 0
+        for( var i = 0 to sizeOf(textureArray)-1 step 4 )
+        start
+            var x1 = textureArray[i+0]
+            var y1 = textureArray[i+1]
+            var x2 = x1 + textureArray[i+2]
+            var y2 = y1 + textureArray[i+3]
+            getSubImage(x1,y1,x2,y2, mainImages[sizeof(mainImages)-1]),mainImages, j
+            j = j + 1
+        end
+    end
+
+    function loadSounds()
+     start
+        soundInit()
+        soundLoad("samples/starfooassets/shot.wav",0)
+        soundLoad("samples/starfooassets/enemyhit.wav",0)
+        soundLoad("samples/starfooassets/explode01.wav",0)
+        soundLoad("samples/starfooassets/bgm.wav",1)
+     end
+
+    function drawScrollers()
+    start
+        drawScrolledImage(0,0,2,2.4,0,-frame*0.00685), 0, bgImage[0]
+    end
+
+    function reset()
+    start
+        ship.state = ShipState.IDLE
+        ship.x = ScreenWidth/2
+        ship.y = ScreenHeight + 100
+        ship.frame = 0
+
+        killAllEntities( shots, shotArrayStats )
+        killAllEntities( particles, particleArrayStats )
+        killAllEntities( bullets, bulletArrayStats )
+        killAllEntities( enemies, enemyArrayStats )
+        gameState = StateGame.TITLE
+        gameScore = 0
+        soundPlay("samples/starfooassets/bgm.wav")
+    end
+
+    # Load sounds #
+    loadSounds()
+
+    # Open a graphics screen #
+    screen(ScreenWidth,ScreenHeight,1)
+
+    loadImages()
+    soundPlay("samples/starfooassets/bgm.wav")
+
+    reset()
+
+    setBlendMode(1)
+    # Do the loop until we press ESCAPE or clicked the "X" window button #
+    while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+    start
+        frame = frame + 1   # Increase frame for animation #
+        #cls()#               # Clear the screen #
+        updateAll()
+        drawScrollers()
+        drawAll()
+
+        delay(1)           # Sleep for 1 millisecond #
+        screenFlip()        # Show the frame buffer #
+    end
+    exit(0)  # Clean up graphics#
+end

@@ -1,0 +1,72 @@
+# Orbit Demo by Alexis Munsayac #
+start
+	var frames = 64
+	var PI = 3.14158265358979
+	var gravity = 9.806*4
+
+	var linkedBody[40]
+	var bodyX[40]
+	var bodyY[40]
+	var vectorX[40]
+	var vectorY[40]
+	var bodySize[40]
+	var bodies = 0
+	function createBody(x, y, velocity, angle, size)
+	start
+		bodyX[bodies] = x
+		bodyY[bodies] = y
+		vectorX[bodies] = velocity*cos(angle)
+		vectorY[bodies] = velocity*sin(angle)
+		bodySize[bodies] = size
+		bodies = bodies + 1
+		return bodies - 1
+	end
+
+	function drawBody(body)
+	start
+		setcolor(1, 1, 1, 0.4)
+		drawEllipse(bodyX[body], bodyY[body], bodySize[body], bodySize[body], 0)+
+		setcolor(1, 1, 1, 1)
+		drawEllipse(bodyX[body], bodyY[body], bodySize[body], bodySize[body], 0)
+	end
+
+	function moveBody(mbody)
+	start
+		var linked = linkedBody[mbody]
+		if (linked != mbody) then
+		start
+			var targetAng = atan2(bodyY[linked] - bodyY[mbody], bodyX[linked] - bodyX[mbody])
+			vectorX[mbody] = vectorX[mbody] + gravity*cos(targetAng)
+			vectorY[mbody] = vectorY[mbody] + gravity*sin(targetAng)
+		end
+
+		bodyX[mbody] = bodyX[mbody] + vectorX[mbody]*(1/frames)
+		bodyY[mbody] = bodyY[mbody] + vectorY[mbody]*(1/frames)
+	end
+
+	function linkBody(lbody, tobody)
+	start
+		linkedBody[lbody] = tobody
+	end
+
+	var center = createBody(400, 300, 0, 0, 32)
+	for(var i = 1 to sizeOf(linkedBody)-1 step 1)
+	start
+		var tmp = createBody(random(800), random(600), 100 + random(300), random(PI*2), 8)
+		linkBody(tmp, center)
+	end
+
+	screen(800, 600)
+	while(!windowclosed())
+	start
+		cls()
+		for(var i = 0 to sizeOf(linkedBody)-1 step 1)
+		start
+			moveBody(i)
+			drawBody(i)
+		end
+		delay(1000/frames)
+		screenflip()
+	end
+	exit(0)
+end

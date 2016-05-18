@@ -1,0 +1,90 @@
+
+# Custom font example by Relminator #
+
+start
+    
+     var screenWidth = 800
+     var screenHeight =  600
+     var frame = 0
+
+     var imageWidth = 512
+     var imageHeight = 512
+     var tileWidth = 64
+     var tileHeight = 64
+
+     var fontImages[imageWidth/tileWidth * imageHeight/tileHeight + 1]
+
+     function loadImages()
+     start
+
+       # Load the images #
+       loadimage("images/wackyfont.png",  fontImages, sizeof(fontImages)-1)
+
+       # Get a 64x64 portion of topwaves images #
+       var index = 0
+       for( var y = 0 to imageHeight/tileHeight -1 step 1 )
+       start
+            for( var x = 0 to imageWidth/tileWidth - 1 step 1 )
+            start
+                var x1 = x * tileWidth
+                var y1 = y * tileHeight
+                var x2 = x1 + tileWidth - 1
+                var y2 = y1 + tileHeight - 1
+                getSubImage( x1, y1, x2, y2,
+                             fontImages[sizeof(fontImages)-1]),
+                             fontImages, index
+                index = index + 1
+            end
+       end
+
+
+     end
+
+     function drawFont( x, y, name )
+     start
+        for( var i = 0 to stringLength(name)-1 step 1)
+        start
+            # Use ValASCII() to get the asci value of the character and subtract
+              32 to get the array index #
+            drawImage(x + tileWidth*i,y),0,fontImages[valAscii(name,i)-32]
+        end
+     end
+
+     function drawWaveFont( x, y, waveValue, waveHeight, name )
+     start
+        for( var i = 0 to stringLength(name)-1 step 1)
+        start
+            drawImage(x + tileWidth*i,y+sin(waveValue+i)*waveHeight),0,fontImages[valAscii(name,i)-32]
+        end
+     end
+
+     function drawWackyFont( x, y, wackyValue, name )
+     start
+        for( var i = 0 to stringLength(name)-1 step 1)
+        start
+            drawTransformedImage( x + tileWidth*i+(tileWidth/2),
+                                  y+tileHeight/2,
+                                  wackyValue + i * 20, 1, 1 ),
+                                  0,fontImages[valAscii(name,i)-32]
+        end
+     end
+
+     screen(ScreenWidth,ScreenHeight)
+     loadImages()
+
+	 while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+	 start
+		frame = frame + 1
+		drawString(0,0,"Custom Font Example")
+		drawFont( 100, 100, "ANYABASIC" )
+		drawWaveFont( 20, 300, frame*0.075, 50, "CUSTOM FONT!" )
+		drawWackyFont( 20, 500, sin(frame*0.1)*55, "CUSTOM FONT!" )
+		# draw an alpha enabled box over the scene for a bit of motion blur effect #
+		drawLine(0,0,screenWidth,screenHeight,0,0,0,0.1),+,+
+		delay(1) 			# Sleep for 1 milliseconds #
+		screenFlip()        # Show the frame buffer #
+	 end
+ 	 exit(0)  # Clean up graphics#
+
+end
+
