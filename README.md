@@ -128,6 +128,13 @@ Greets:
 - All the guys at Java-gaming.org
 - All the guys at dbfinteractive.com
 
+
+How to Compile:
+
+You need to add the jar files in the /libs folder as modules and
+add references to their native bindings. The native binaries are those 
+DLL, SO and LIB files found in the directory where AnyaBasic.jar is located.
+
 Changelog:
 
 0.1.0 (03-08-16)
