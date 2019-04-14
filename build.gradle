@@ -14,6 +14,10 @@ jar {
                 'Class-Path': '.'
         )
     }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 repositories {
