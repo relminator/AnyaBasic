@@ -1,4 +1,4 @@
-java -Djava.library.path=../native -jar ../releases/AnyaBasic-latest.jar associativearray.abs
+java -Djava.library.path=../native -jar AnyaBasic-latest.jar associativearray.abs
 
 pause
 
