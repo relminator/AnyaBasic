@@ -36,7 +36,7 @@ import java.net.URL;
 
 class ImageTextureDataDefault implements ImageTextureData
 {
-    private String fileName = "assets/anyabasic.png";
+    private String fileName = "anyabasic.png";
 
     @Override
     public URL getUrl()

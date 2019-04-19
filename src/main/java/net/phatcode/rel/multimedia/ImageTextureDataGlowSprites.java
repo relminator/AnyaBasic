@@ -37,7 +37,7 @@ import java.net.URL;
 class ImageTextureDataGlowSprites implements ImageTextureData
 {
 
-    private String fileName = "assets/glowparts.png";
+    private String fileName = "glowparts.png";
 
     public URL getUrl()
     {

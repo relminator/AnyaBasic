@@ -5,7 +5,7 @@ import java.net.URL;
 class ImageTextureDataFont implements ImageTextureData
 {
 	
-	private String fileName = "assets/font.png";
+	private String fileName = "font.png";
 	
 	public URL getUrl()
 	{
