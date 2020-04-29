@@ -1,4 +1,4 @@
-java -Djava.library.path=.. -cp ../AnyaBasic.jar net.phatcode.rel.main.AnyaBasicMain samples/calculator.abs
+java -Djava.library.path=../native -jar AnyaBasic-latest.jar calculator.abs
 
 pause
 

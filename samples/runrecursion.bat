@@ -1,4 +1,4 @@
-java -cp ../AnyaBasic.jar net.phatcode.rel.main.AnyaBasicMain samples/recursion.abs
+java -Djava.library.path=../native -jar AnyaBasic-latest.jar recursion.abs
 
 pause
 

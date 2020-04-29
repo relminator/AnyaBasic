@@ -1,4 +1,4 @@
-java -cp ../AnyaBasic.jar net.phatcode.rel.main.AnyaBasicMain samples/sample02.abs
+java -Djava.library.path=../native -jar AnyaBasic-latest.jar sample02.abs
 
 pause
 
