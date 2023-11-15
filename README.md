@@ -269,3 +269,23 @@ Initial release.
 * Associative arrays Map< String, value >
 * ContainsKey(mapName, keyName)
 
+05-24-16
+* Multiple ELSEIF construct
+
+11-14-23
+* OpenTextFile(path)
+* SaveTextFile(path, content)
+
+
+Note to self(because updating this project after 7 years and looking at the code felt like having a lobotomy):
+1. When adding keywords/statements(e.g. SaveTextFile (filename, content)
+	* Make a statement class that implements Statement
+	* Make a parslet(Parslets.java) to parse the code
+	* Add keyword to lexer
+	* Parser -> add case to identifyKeyword() function
+	* Parser -> make an execute funtion if it's long enough. Otherwise execute directly from Statement class.
+
+2. When adding intrinsic functions(e.g. var c = OpenTextFile(filename)
+	* Parser -> add case to executeFunction()
+	* Parser -> make a function, that returns an Expression, that does the job of the keyword or just do it inside he case statement if it's short enough.
+	
