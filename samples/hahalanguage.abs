@@ -1,0 +1,442 @@
+# *********************************************************************
+
+  HAHA Mini-Programming Language
+  "Half-Awesome, Half-Amazing"
+
+  Relminator
+
+  ******************************************************************* #
+
+Start
+
+    Type TokenType
+    start
+        NUMBER = 0
+        STRING = 1
+        KEYWORD = 2
+        PLUS = 3
+        MINUS = 4
+        STAR = 5
+        SLASH = 6
+        PERCENT = 7
+        CARET = 8
+        LPAREN = 9
+        RPAREN = 10
+        PRINTLN = 11
+        EQUALS = 12
+        UNKNOWN = 99
+    end
+
+    Type LexerStateEnum
+    start
+        DEFAULT = 0
+        NUMBER = 1
+        STRING = 2
+        KEYWORD = 3
+    end
+
+    Type MyToken
+    start
+        id = TokenType.UNKNOWN
+        text = ""
+    end
+
+    Type VariableID
+    start
+        NUMBER = 0
+        STRING =  1
+    end
+
+    var tokenPosition = 0
+    MyToken currentToken
+
+
+    var source = "
+                    print 10 + 2.5 / (  3.2-75 ) * 211
+                    print 10+5 * 4^2
+                    print 20
+                    foo = 50
+                    bar = foo + 250
+                    print foo * foo
+                    print bar + 100
+                    
+                 "
+
+
+    #var source = "print 'rel' "#
+
+    var numTokens = 0
+    MyToken tokens[65535]
+    var variables{:}
+
+    # Lexer #
+
+    function isParenthesis( c )
+    start
+        return c == "(" || c == ")"
+    end
+
+    function isOperator( c )
+    start
+        return c == "+" || c == "-" ||
+               c == "*" || c == "/" ||
+               c == "%" || c == "^" ||
+               c == "="
+    end
+
+    function findOperatorType( c )
+    start
+        var result
+
+        if( c == "+" ) then result = TokenType.PLUS
+        if( c == "-" ) then result = TokenType.MINUS
+        if( c == "*" ) then result = TokenType.STAR
+        if( c == "/" ) then result = TokenType.SLASH
+        if( c == "%" ) then result = TokenType.PERCENT
+        if( c == "^" ) then result = TokenType.CARET
+        if( c == "=" ) then result = TokenType.EQUALS
+
+        return result
+
+    end
+
+    function findParenthesisType( c )
+    start
+        var result
+
+        if( c == "(" ) then result = TokenType.LPAREN
+        if( c == ")" ) then result = TokenType.RPAREN
+
+        return result
+
+    end
+
+
+    function tokenize( source )
+    start
+        MyToken tok
+        var currentTokenIndex = 0
+        var token = ""
+        var lexerState = LexerStateEnum.DEFAULT
+
+        for( var i = 0 to stringLength(source)-1 step 1 )
+        start
+            var c = substring(source, i, i+1)
+            if( lexerState == LexerStateEnum.DEFAULT ) then
+            start
+                if( isOperator(c) ) then
+                start
+                    tokens[currentTokenIndex].ID = findOperatorType(c)
+                    tokens[currentTokenIndex].text = c
+                    currentTokenIndex = currentTokenIndex + 1
+                end
+                if( isParenthesis(c) ) then
+                start
+                    tokens[currentTokenIndex].ID = findParenthesisType(c)
+                    tokens[currentTokenIndex].text = c
+                    currentTokenIndex = currentTokenIndex + 1
+                end
+                if( isDigit(c) ) then
+                start
+                    lexerState = LexerStateEnum.NUMBER
+                end
+                if( c == "'" ) then
+                start
+                    lexerState = LexerStateEnum.STRING
+                end
+                if( isLetter(c) ) then
+                start
+                    lexerState = LexerStateEnum.KEYWORD
+                end
+
+
+            end
+
+            if( lexerState == LexerStateEnum.NUMBER ) then
+            start
+                if( isDigit(c) || c == "." ) then
+                start
+                    token = token + c
+                end
+                else
+                start
+                    tokens[currentTokenIndex].ID = TokenType.Number
+                    tokens[currentTokenIndex].text = token
+                    currentTokenIndex = currentTokenIndex + 1
+                    token = ""
+                    lexerState = LexerStateEnum.DEFAULT
+                    i = i - 1
+                end
+            end
+
+            if( lexerState == LexerStateEnum.STRING ) then
+            start
+                if( c == "'" ) then
+                start
+                    tokens[currentTokenIndex].ID = TokenType.STRING
+                    tokens[currentTokenIndex].text = token
+                    currentTokenIndex = currentTokenIndex + 1
+                    token = ""
+                    lexerState = LexerStateEnum.DEFAULT
+                end
+                else
+                start
+                    token = token + c
+                end
+            end
+
+            if( lexerState == LexerStateEnum.KEYWORD ) then
+            start
+                if( isDigit(c) || isLetter(c) ) then
+                start
+                    token = token + c
+                end
+                else
+                start
+                    tokens[currentTokenIndex].ID = findTokenID(token)
+                    tokens[currentTokenIndex].text = lowerCase(token)
+                    currentTokenIndex = currentTokenIndex + 1
+                    token = ""
+                    lexerState = LexerStateEnum.DEFAULT
+                    i = i - 1
+                end
+            end
+
+        end
+
+        numTokens = currentTokenIndex
+
+    end
+
+    function findTokenID( tokenText )
+    start
+        var result = TokenType.KEYWORD
+        var t = lowerCase(tokenText)
+        if( t == "print") then result = TokenType.PRINTLN
+
+        return result
+    end
+
+    function printTokens()
+    start
+        for(var i = 0 to numTokens - 1 step 1)
+        start
+            if( tokens[i].ID == TokenType.NUMBER) then print("ID  : " + "NUMBER")
+            if( tokens[i].ID == TokenType.PLUS) then print("ID  : " + "PLUS")
+            if( tokens[i].ID == TokenType.MINUS) then print("ID  : " + "MINUS")
+            if( tokens[i].ID == TokenType.STAR) then print("ID  : " + "STAR")
+            if( tokens[i].ID == TokenType.SLASH) then print("ID  : " + "SLASH")
+            if( tokens[i].ID == TokenType.PERCENT) then print("ID  : " + "PERCENT")
+            if( tokens[i].ID == TokenType.CARET) then print("ID  : " + "CARET")
+            if( tokens[i].ID == TokenType.LPAREN) then print("ID  : " + "LPAREN")
+            if( tokens[i].ID == TokenType.RPAREN) then print("ID  : " + "RPAREN")
+            if( tokens[i].ID == TokenType.PRINTLN) then print("ID  : " + "PRINTLN")
+            if( tokens[i].ID == TokenType.EQUALS) then print("ID  : " + "EQUALS")
+            if( tokens[i].ID == TokenType.STRING) then print("ID  : " + "STRING")
+            if( tokens[i].ID == TokenType.KEYWORD) then print("ID  : " + "KEYWORD")
+            print("Text: " + tokens[i].text)
+        end
+    end
+
+
+    # Parser #
+    function eat()
+    start
+        tokenPosition = tokenPosition + 1
+        getCurrentToken()
+    end
+
+    function getCurrentToken()
+    start
+        currentToken = tokens[tokenPosition]
+    end
+
+    function match( tokenID )
+    start
+        if( currentToken.ID == tokenID ) then
+        start
+            eat()
+        end
+        else
+        start
+            print("Got " + currentToken.ID )
+            print("Expected " + tokenID )
+        end
+
+    end
+
+    function parserExpression()
+    start
+        return arithmeticExpression()
+    end
+
+    function atom()
+    start
+        var res
+        if( currentToken.ID == TokenType.LPAREN ) then
+        start
+            match(TokenType.LPAREN)
+            res = parserExpression()
+            match(TokenType.RPAREN)
+        end
+        elseif( currentToken.ID == TokenType.NUMBER ) then
+        start
+            res = val(currentToken.text)
+            match(TokenType.NUMBER)
+        end
+        elseif( currentToken.ID == TokenType.STRING ) then
+        start
+            res = currentToken.text
+            match(TokenType.STRING)
+        end
+        else    # Assume keyword #
+        start
+            if( containsKey(variables, currentToken.text) ) then
+            start
+                res = variables{currentToken.text}
+                match(TokenType.KEYWORD)
+            end
+        end
+        return res
+    end
+
+    function signedAtom()
+    start
+        var res = 0
+        if(currentToken.ID == TokenType.MINUS) then
+        start
+            match(TokenType.MINUS)
+            res = -atom();
+        end
+        else
+        start
+            if(currentToken.ID == TokenType.PLUS) then
+            start
+                match(TokenType.PLUS)
+                res = atom()
+            end
+            res = atom()
+        end
+        return res
+    end
+
+    function factor()
+    start
+        var result = signedAtom()
+        while( currentToken.ID == TokenType.CARET )
+        start
+            if( currentToken.ID == TokenType.CARET ) then
+            start
+                match(TokenType.CARET)
+                result = result ^ atom()
+            end
+        end
+        return result
+    end
+
+    function term()
+    start
+        var result = factor()
+        while( (currentToken.ID == TokenType.STAR) ||
+               (currentToken.ID == TokenType.SLASH)  ||
+               (currentToken.ID == TokenType.PERCENT) )
+        start
+            if( currentToken.ID == TokenType.STAR ) then
+            start
+                match(TokenType.STAR)
+                result = result * factor()
+            end
+            if( currentToken.ID == TokenType.SLASH ) then
+            start
+                match(TokenType.SLASH)
+                result = result / factor()
+            end
+            if( currentToken.ID == TokenType.PERCENT ) then
+            start
+                match(TokenType.PERCENT)
+                result = int(result) % int(factor())
+            end
+
+        end
+        return result
+    end
+
+    function arithmeticExpression()
+    start
+        var result = term()
+        while( (currentToken.ID == TokenType.PLUS) || (currentToken.ID == TokenType.MINUS) )
+        start
+            if( currentToken.ID == TokenType.PLUS ) then
+            start
+                match(TokenType.PLUS)
+                result = result + term()
+            end
+            if( currentToken.ID == TokenType.MINUS ) then
+            start
+                match(TokenType.MINUS)
+                result = result - term()
+            end
+
+        end
+        return result
+    end
+
+    function parse()
+    start
+        tokenPosition = 0
+        getCurrentToken()
+        while( tokenPosition < numTokens )
+        start
+            identifyKeyWord(currentToken.ID)
+        end
+    end
+
+
+    function statementPrintLn()
+    start
+        match(TokenType.PRINTLN)
+        var expr = parserExpression()
+        print(expr)
+        return res
+    end
+
+    # a = 5 + B + 20 #
+    function statementAssign()
+    start
+        var name = currentToken.text
+        match(TokenType.KEYWORD)
+        match(TokenType.EQUALS)
+        var expr = parserExpression()
+
+        variables{name} = expr
+        return expr
+    end
+
+    function identifyKeyword( TokenID )
+    start
+        # Print #
+        if( TokenID == TokenType.PRINTLN ) then
+        start
+            res = statementPrintLn()
+        end
+        # Assignment #
+        elseif( TokenID == TokenType.KEYWORD ) then
+        start
+            res = statementAssign()
+        end
+        else
+        start
+            print("Unknown Keyword! " + currentToken.text)
+            exit(1)
+        end
+        return res
+    end
+
+    tokenize(source)
+    printTokens()
+
+    parse()
+
+
+End
+

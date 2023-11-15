@@ -1,0 +1,99 @@
+
+# Tile Scroller example by Relminator #
+start
+
+     var screenWidth = 512
+     var screenHeight =  512
+     var frame = 0
+
+     var tileWidth = 20
+     var tileHeight = 10
+
+     var tileArray[20*10]
+
+     var scrollSpeed = -3.5
+
+     var bgImage[1]     # Array to hold the references to our images #
+     var topWavesImages[512/32 + 1]
+     var groundImages[512/32 + 1]
+
+     var tileSize = 32
+     var scrollerPixelOffset = 0
+     var scrollerTileOffset = 0
+     var scrollerScrollPosition = 0
+
+     function updateScrollers()
+     start
+          scrollerScrollPosition = scrollerScrollPosition - scrollSpeed
+          scrollerPixelOffset = scrollerScrollPosition
+          if( scrollerPixelOffset > tileSize ) then
+          start
+              scrollerPixelOffset = scrollerPixelOffset % tileSize
+              scrollerTileOffset = scrollerTileOffset + 1
+              scrollerScrollPosition = 0
+          end
+     end
+
+     function drawScrollers()
+     start
+        for( var i = 0 to 512/tileSize+1 step 1)
+        start
+             var index = (scrollerTileOffset + i) % ((sizeOf(topWavesImages) - 1))
+             drawImage(-tileSize + (i * tileSize) - scrollerPixelOffset, 0), 0,topWavesImages[index]
+             drawImage(-tileSize + (i * tileSize) - scrollerPixelOffset, ScreenHeight-24), 0,groundImages[index]
+        end
+     end
+
+     function drawAll()
+     start
+        drawImage(0,0),0,bgImage[0]
+        drawScrollers()
+      end
+
+     function updateAll()
+     start
+        updateScrollers()
+     end
+
+     function loadImages()
+     start
+
+       # Load the images #
+       loadimage("flappyassets/background.png",  bgImage, 0)
+       loadimage("flappyassets/topwaves.png",  topWavesImages, sizeof(topWavesImages)-1)
+       loadimage("flappyassets/ground.png",  groundImages, sizeof(groundImages)-1)
+
+       # Get a 32x64 portion of topwaves images #
+       for( var i = 0 to 512/tileSize -1 step 1)
+       start
+            getSubImage( i*tileSize,0,i*tileSize + 31,63,
+                         topWavesImages[sizeof(topWavesImages)-1]),
+                         topWavesImages, i
+       end
+
+       # Get a 32x32 portion of ground images #
+       for( var i = 0 to 512/tileSize -1 step 1)
+       start
+            getSubImage( i*tileSize,0,i*tileSize + 31,31,
+                         groundImages[sizeof(groundImages)-1]),
+                         groundImages, i
+       end
+
+     end
+
+     screen(ScreenWidth,ScreenHeight)
+     loadImages()
+
+	 while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+	 start
+		frame = frame + 1
+		cls()				# Clear the screen #
+		updateAll()
+        drawAll()
+		delay(1) 			# Sleep for 1 milliseconds #
+		screenFlip()        # Show the frame buffer #
+	 end
+ 	 exit(0)  # Clean up graphics#
+
+end
+

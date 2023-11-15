@@ -1,0 +1,169 @@
+# *****************************************************************
+
+  Particles demo
+
+  Relminator
+
+  **************************************************************** #
+
+start
+    Type Bullet
+    start
+         x = 0
+         y = 0
+         dx = 0
+         dy = 0
+         angle = 0
+         frame = 0
+         active = 0
+    end
+
+    var PI = 3.141593
+    var toRadian = PI/180.0
+    var toDegree = 180.0/PI
+
+ 	var ScreenWidth =  800
+ 	var ScreenHeight =  600
+ 	var frame = 0
+
+    var MAXBULLETS = 1023
+    var bulletArraySize = 0;
+    Bullet bullets[MAXBULLETS+1]
+    var bulletImage[1]
+    var bulletSpeed = 6
+
+    function addBullet( addBulletX, addBulletY,
+                        addBulletDx, addBulletDy,
+                        addBulletAngle, addBulletFrame )
+    start
+        if( bulletArraySize < MAXBULLETS) then
+        start
+            bullets[bulletArraySize].x = addBulletX
+            bullets[bulletArraySize].y = addBulletY
+            bullets[bulletArraySize].dx = addBulletDx
+            bullets[bulletArraySize].dy = addBulletDy
+            bullets[bulletArraySize].angle = addBulletAngle
+            bullets[bulletArraySize].frame = addBulletFrame
+            bullets[bulletArraySize].active = 1
+            bulletArraySize = bulletArraySize + 1
+        end
+    end
+
+    function removeBullet( removeBulletIndex )
+    start
+        if(removeBulletIndex < bulletArraySize) then
+        start
+            # t = a
+              a = b
+              b = t  #
+            bulletArraySize = bulletArraySize - 1
+            bullets[MAXBULLETS] = bullets[removeBulletIndex]
+            bullets[removeBulletIndex] = bullets[bulletArraySize]
+            bullets[bulletArraySize] = bullets[MAXBULLETS]
+        end
+    end
+
+    function updateBullets()
+    start
+        for( var i = 0 to bulletArraySize - 1 step 1 )
+        start
+            if( bullets[i].active ) then
+            start
+                bullets[i].x = bullets[i].x + bullets[i].dx
+                bullets[i].y = bullets[i].y + bullets[i].dy
+                if( bullets[i].x < -64 ) then bullets[i].active = 0
+                if( bullets[i].y < -64 ) then bullets[i].active = 0
+                if( bullets[i].x > ScreenWidth + 64 ) then bullets[i].active = 0
+                if( bullets[i].y > ScreenHeight + 64 ) then bullets[i].active = 0
+            end
+            else
+            start
+                removeBullet(i)
+            end
+        end
+    end
+
+    function drawBullets()
+    start
+
+        for( var i = 0 to bulletArraySize - 1 step 1)
+        start
+            if( bullets[i].active ) then
+            start
+                var x = bullets[i].x
+                var y = bullets[i].y
+                drawTransformedImage( bullets[i].x, bullets[i].y,
+                                      bullets[i].angle,
+                                      1, 1 ), 0, bulletImage[bullets[i].frame]
+
+            end
+        end
+    end
+
+    function updateAll()
+    start
+        if( frame % 1 == 0 ) then
+        start
+            var x = sin(frame*0.02) + cos(frame*0.07) + sin(frame*0.05)
+            var y = sin(frame*0.08) + cos(frame*0.03)
+            var x1 = ScreenWidth/2 - x * 120
+            var y1 = ScreenHeight/2 - y * 75
+            var x2 = ScreenWidth/2 + x * 120
+            var y2 = ScreenHeight/2 + y * 75
+            var angle = frame * 0.1
+            addBullet( x1, y1,
+                       cos(angle)*bulletSpeed, sin(angle)*bulletSpeed,
+                       angle*toDegree, 0 )
+            addBullet( x1, y1,
+                       cos(angle+PI/2)*bulletSpeed, sin(angle+PI/2)*bulletSpeed,
+                       (angle+PI/2)*toDegree, 0 )
+            addBullet( x1, y1,
+                       cos(angle+PI)*bulletSpeed, sin(angle+PI)*bulletSpeed,
+                       (angle+PI)*toDegree, 0 )
+            addBullet( x1, y1,
+                       cos(angle-PI/2)*bulletSpeed, sin(angle-PI/2)*bulletSpeed,
+                       (angle-PI/2)*toDegree, 0 )
+
+            addBullet( x2, y2,
+                       cos(angle)*bulletSpeed, sin(angle)*bulletSpeed,
+                       angle*toDegree, 0 )
+            addBullet( x2, y2,
+                       cos(angle+PI/2)*bulletSpeed, sin(angle+PI/2)*bulletSpeed,
+                       (angle+PI/2)*toDegree, 0 )
+            addBullet( x2, y2,
+                       cos(angle+PI)*bulletSpeed, sin(angle+PI)*bulletSpeed,
+                       (angle+PI)*toDegree, 0 )
+            addBullet( x2, y2,
+                       cos(angle-PI/2)*bulletSpeed, sin(angle-PI/2)*bulletSpeed,
+                       (angle-PI/2)*toDegree, 0 )
+
+        end
+       updateBullets()
+    end
+
+    function drawAll()
+    start
+        drawBullets()
+    end
+
+    # Open a graphics screen #
+    screen(ScreenWidth,ScreenHeight)
+
+    loadimage("bulletimages/bullet2.png",  bulletImage, sizeof(bulletImage)-1)
+
+    setBlendMode(1)
+    # Do the loop until we press ESCAPE or clicked the "X" window button #
+    while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+    start
+        frame = frame + 1   # Increase frame for animation #
+        cls()               # Clear the screen #
+        updateAll()
+        drawAll()
+        drawString(0,0,"Num Bullets: " + int(bulletArraySize))
+        drawString(0,50,"Mouse: " + (mouseButtonDown(0)))
+        drawString(0,100,"Mouse: " + (mouseButtonDown(1)))
+        delay(1)           # Sleep for 14 milliseconds #
+        screenFlip()        # Show the frame buffer #
+    end                                     `
+    exit(0)  # Clean up graphics#
+end

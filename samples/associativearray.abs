@@ -1,0 +1,29 @@
+    start
+       Type Vec2D
+       start
+           x = 20
+           y = 30
+       end
+       Vec2D v
+       v.x = 45
+       v.y = 23
+       Var a[10][10]
+       a[1][1] = "AnyaBasic"
+       var key = "re;"
+       var map{:}               # This is how you declare Associative arrays #
+       map{key} = 999         # Put a number value #
+       map{"anya"} = v          # Put a user defined type value #
+       map{"Lilytte"} = a       # A 2D array this time #
+       var x
+       var z = map{key}           # Retrieve a value #
+       x = map{"anya"}
+       print(x.x)
+       print(x.y)
+       print(z)
+       var y = map{"Lilytte"}
+       print(y[1][1])
+       print(containsKey(map,"anya"))   # Check if a key is contained in the associative array #
+       print(sizeOf(map))               # Print its size #
+
+
+    end

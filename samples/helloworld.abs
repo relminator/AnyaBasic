@@ -1,0 +1,60 @@
+start
+
+function bar( a )
+start
+    return a
+end
+
+function foo( a, b )
+start
+    return a + b
+end
+
+print( foo(bar(1),bar(2)) )
+print("hello world!")
+
+write("Relminator\n")
+write("Relminator\n")
+
+
+# todo #
+repeat(  10 to 0 step -1)
+start
+    print("rel\n")
+end
+
+
+var scale =  20
+var x = (5.2 * 20)/20
+var y = int(5.2 * 20/20)
+
+print(x)
+print(y)
+
+print("")
+
+var a = 3
+if ( a == 1 ) then print ("a = 1")
+elseif (a == 2) then 
+start
+    print ("a = 2")
+    print ("a = 2")
+end
+elseif (a == 3) then  
+   print ("a = 3")
+elseif (a == 4) then 
+start
+    print ("a = 4")
+end
+
+else 
+start
+    print( "a = ELSE" )
+end
+
+
+
+
+
+end
+

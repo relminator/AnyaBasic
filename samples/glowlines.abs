@@ -1,0 +1,24 @@
+
+# Custom font example by Relminator #
+
+start
+
+     var frame = 0
+
+     screen(800,600)
+
+	 while( !(KeyDown(1)) && !WindowClosed() )  
+	 start
+		frame = frame + 1
+		cls()
+		setBlendMode(0)
+		setColor(1,1,1,1)
+		drawString(0,0,"glowlines!")
+		setBlendMode(1)
+		delay(1) 			
+		screenFlip()        
+	 end
+ 	exit(0)  
+
+end
+

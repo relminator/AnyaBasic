@@ -1,0 +1,38 @@
+ # Draw some twist #
+
+ # ********************************************
+   This shows how to emulate structs and types
+   using a simple 1-dimensional array.
+   ******************************************* #
+
+ start
+
+ 	var ScreenWidth =  800
+ 	var ScreenHeight =  600
+ 	var frame = 0
+
+    var radius = 0
+    var i = 0
+    var angle = 0
+
+	screen(ScreenWidth,ScreenHeight)
+	while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
+	start
+		frame = frame + 1
+		cls()				# Clear the screen #
+        for( var i = 0 to 1200 step 1 )
+        start
+            angle = angle + 1
+            radius = i * 2
+            var x = cos(6 * cos(radius- i * angle) * 3.14/180) * radius
+            var y = sin(6 * cos(radius- i * angle) * 3.14/180) * radius
+            drawEllipse(400 - x, 300 - y,10,10,0)+
+        end
+		delay(14) 			# Sleep for 14 milliseconds #
+		screenFlip()        # Show the frame buffer #
+	end
+ 	exit(0)  # Clean up graphics#
+
+
+ end
+

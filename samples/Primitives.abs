@@ -1,0 +1,26 @@
+Start
+          var frame = 0
+          function drawCorners()
+          start
+              setColor(1,1,1,1)
+              drawEllipse(150,100,100,150,45),+
+              drawLine(50, 450, 300, 550, 1, 0, 0, 1),+,+
+              setColor(0,1,0,1)
+              drawEllipse(800-150,600-100,100,100,0)
+          end
+
+          screen(800,600)
+          while( !(KeyDown(1)) && !WindowClosed() )
+          start
+              #  this is a comment #
+              frame = frame + 1
+              cls(0,1,0,0.1)
+              drawCorners()
+              delay(14)
+              screenFlip()
+          end
+      print(round(100.9234))
+      exit(0)
+      end
+
+

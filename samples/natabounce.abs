@@ -1,0 +1,68 @@
+# Bouncing Ball demo by Gerald Cruz #
+start
+
+var fps=200
+
+var xmax=800
+var ymax=600
+
+var r=20
+var x=0
+var y=0
+var xv=5
+var yv=1
+var g=0.9
+
+function drawBall()
+start
+  setColor(1,1,1,1)
+  drawEllipse(x,y,r,r,0)+
+end
+
+function moveBall()
+start
+
+  x=x+xv
+  y=y+yv
+
+  if (x<=r) then
+  start
+    x=r
+    xv=abs(xv)
+  end
+
+  if (x>=xmax-r) then
+  start
+    x=xmax-r
+    var dx = -abs(xv)
+    xv=dx
+  end
+
+  if (y<=r) then
+  start
+    y=r
+    yv=abs(yv)
+  end
+
+  if (y>=ymax-r) then
+  start
+    y=ymax-r
+    var dy = -abs(yv)
+    yv=dy
+  end
+
+  yv=yv+g
+
+end
+
+screen(xmax,ymax)
+while( keyDown(1) == 0 )
+start
+  cls()
+  drawBall()
+  moveBall()
+  delay(1000/fps)
+  screenFlip()
+end
+exit(0)
+end

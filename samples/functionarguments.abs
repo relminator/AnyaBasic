@@ -1,0 +1,21 @@
+#
+First Class Functions
+Don't have any plans extending this beyond sample.
+#
+
+start
+
+function add(a, b)
+start
+    return a + b
+end
+
+function c( d )
+start
+    print(d(1,2))
+end
+
+c( add )
+
+end
+

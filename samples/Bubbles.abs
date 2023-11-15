@@ -1,0 +1,42 @@
+
+# Original code in SPECBas by Paul Dunn #
+
+start
+
+     var frame = 0
+     var PI = 3.141593
+     var r = 2 * PI / 235
+     var sz = 200
+     var n = 100
+     var x = 0
+     var t = 0
+     var u = 0
+     var v = 0
+     
+     screen(800,600)
+
+	 while( !(KeyDown(1)) && !WindowClosed() )  
+	 start
+		frame = frame + 1
+		cls()
+		for( var i = 0 to n step 1 )
+        	start
+        	    for( var j = 0 to n step 1 )
+        	    start
+        	        u = sin(i + v) + sin(r * i + x)
+        	        v = cos(i + v) + cos(r * i + x)
+        	        x = u + t
+        	        var px = u * sz + 400
+        	        var py = v * sz + 300 
+        	        drawLine(px,py,px+1,py,i/n,j/n,0.5,1) 
+        	    end
+        	end 
+        	t = t + 0.0250
+        	setColor(1,1,1,1)
+        	delay(1) 			
+		screenFlip()        
+	 end
+ 	exit(0)  
+
+end
+

@@ -1,0 +1,28 @@
+#
+Multiline IF-ELSEIF-ELSE sample and
+Text file IO
+#
+start
+
+	var a = 3
+	if( a == 0 ) then 
+	start
+		print("ZERO")
+	end
+	elseif( a == 1) then print("ONE")
+	elseif( a == 2) then print("TWO")
+	elseif( a == 3) then 
+	start 
+		print("THREE")
+	end
+	elseif( a == 4) then print("FOUR")
+	else print("NONE")
+
+	var b = OpenTextFile("samples/particles2.abs")
+	print(b)
+
+	var c =  "temper.txt"
+	savetextfile(c,b)
+
+end
+
