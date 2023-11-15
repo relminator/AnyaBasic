@@ -47,12 +47,12 @@ Installing:
 
 How to run the sample codes:
 
-Usage: java -cp AnyaBasic.jar net.phatcode.rel.main.AnyaBasicMain <source.abs> 
+Usage: java -jar AnyaBasic.jar <source.abs> 
 
 * Just type the above line on the terminal/console or
 * Double click any of the "runxxxxxx.bat" for Windows users.  
 * For graphics and sound apps, you need to include the lib path:
-> Java -Djava.library.path=. -cp AnyaBasic.jar net.phatcode.rel.main.AnyaBasicMain <source.abs>
+> java -Djava.library.path=. -jar AnyaBasic.jar  <source.abs>
 * See the batch and SH files in the samples section.
 * You can also use the accompanying ConTEXT editor as an IDE to make coding a bit easier.
 
