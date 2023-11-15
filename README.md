@@ -20,6 +20,8 @@ Author: Relminator (Richard Eric M. Lope)
 
 
 ![Alt text](screenshots/screenshot01.png?raw=true)
+![Alt text](screenshots/screenshot02.png?raw=true)
+![Alt text](screenshots/screenshot03.png?raw=true)
 
 AnyaBASIC uses the MIT license. That means it's free to use for either non-commercial
 or commercial purposes.
