@@ -19,6 +19,7 @@ Author: Relminator (Richard Eric M. Lope)
             email: vic_viperph@yahoo.com
 
 
+![Alt text](screenshots/screenshot01.png?raw=true)
 
 AnyaBASIC uses the MIT license. That means it's free to use for either non-commercial
 or commercial purposes.
