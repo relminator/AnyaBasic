@@ -1,8 +1,18 @@
 How to Compile:
 
-You need to add the jar files in the /libs folder as modules and
-add references to their native bindings in the main directory where
-AnyaBasic.jar is located.
+I used Eclipse so it may be different depending on what IDE you use.
+1. File -> Import Existing projects into wokspace.
+2. Project -> Properties -> Java Build Path -> 
+	Libraries tab -> Add Jars.
+3. Add all the jars in the /libs folder.
+		* jinput.jar
+		* lwjgl.jar
+		* lwjgl_util.jar
+		* pngdecoder-1.0.jar
+4. Export as a "Runnable Jar"
+
+Note: AnyaBasic.jar needs to be in the same directory as the native files (DLL, SO, dylib)
+
 
 
 changes:
@@ -138,12 +148,15 @@ changes:
 * OpenTextFile(path)
 * SaveTextFile(path, content)
 
+11-15-23
+*FileExists(path)
+
 
 Note to self(because updating this project after 7 years and looking at the code felt like having a lobotomy):
 1. When adding keywords/statements(e.g. SaveTextFile (filename, content)
 	* Make a statement class that implements Statement
 	* Make a parslet(Parslets.java) to parse the code
-	* Add keyword to lexer
+	* Lexer -> add a case for the keyword
 	* Parser -> add case to identifyKeyword() function
 	* Parser -> make an execute funtion if it's long enough. Otherwise execute directly from Statement class.
 

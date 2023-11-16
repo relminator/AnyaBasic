@@ -18,11 +18,21 @@ start
 	elseif( a == 4) then print("FOUR")
 	else print("NONE")
 
-	var b = OpenTextFile("samples/particles2.abs")
+	var b = OpenTextFile("particles2.abs")
 	print(b)
 
 	var c =  "temper.txt"
 	savetextfile(c,b)
+	
+	var d = fileExists(c);
+	var e = fileExists("particles2.abs");
+	var f = fileExists("foo.bar");
+	
+	print(d)
+	print(e)
+	print(f)
+	
+	
 
 end
 

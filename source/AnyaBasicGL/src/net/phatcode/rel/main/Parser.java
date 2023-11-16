@@ -36,11 +36,10 @@ package net.phatcode.rel.main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -908,13 +907,14 @@ public class Parser
     private Expression openTextFile( List<Expression> args )
     {
         String name = args.get( 0 ).evaluate().toString();
-        URL url = this.getClass().getClassLoader().getResource(name);
+        //URL url = this.getClass().getClassLoader().getResource(name);
         BufferedReader input;
 		String text = ""; 
 		try 
 		{
-			assert url != null;
-			input = new BufferedReader(new InputStreamReader(url.openStream()));
+			//assert url != null;
+			//input = new BufferedReader(new InputStreamReader(url.openStream()));
+			input = new BufferedReader(new FileReader(name));
 			String inputLine;
 			
 			while( (inputLine = input.readLine()) != null )
@@ -929,6 +929,17 @@ public class Parser
 			e.printStackTrace();
 		}
         return new ValueString( text );
+    }
+    
+    private Expression fileExists( List<Expression> args )
+    {
+        String name = args.get( 0 ).evaluate().toString();
+        File tempFile = new File(name); 
+		boolean exists = tempFile.exists();
+		int res = 0;
+		if(exists) res = 1;
+        return new ValueInteger( res );
+        
     }
     
     private Expression windowClosed()
@@ -1337,6 +1348,9 @@ public class Parser
                 break;
             case "opentextfile":
                 res = openTextFile( args );
+                break;
+            case "fileexists":
+                res = fileExists( args );
                 break;
             default:  // user function call as a part of a expression;ie. print(a+ foo() +meh())
                 if( symbolTable.containsKey( funky ) )

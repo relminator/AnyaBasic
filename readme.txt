@@ -12,7 +12,7 @@ this language evolved into something which is capable of doing a
 lot more(games, graphics, etc). It's also a language whose keywords are in English 
 so it should be a good language to use in teaching kids how to program.
 
-Release 0.5.1
+Release 1.1.0
 
 Author: Relminator (Richard Eric M. Lope)
             http://rel.phatcode.net
@@ -36,7 +36,7 @@ Features
  - Portable
  - Graphics capable
  - Full hardware acceleration
-
+ - First class functions 
 
 Installing:
 
@@ -56,6 +56,20 @@ Usage: java -jar AnyaBasic.jar <source.abs>
 * See the batch and SH files in the samples section.
 * You can also use the accompanying ConTEXT editor as an IDE to make coding a bit easier.
 
+How to Compile:
+
+I used Eclipse so it may be different depending on what IDE you use.
+1. File -> Import Existing projects into wokspace.
+2. Project -> Properties -> Java Build Path -> 
+	Libraries tab -> Add Jars.
+3. Add all the jars in the /libs folder.
+		* jinput.jar
+		* lwjgl.jar
+		* lwjgl_util.jar
+		* pngdecoder-1.0.jar
+4. Export as a "Runnable Jar"
+
+Note: AnyaBasic.jar needs to be in the same directory as the native files (DLL, SO, dylib)
 
 Fun fact:
 
@@ -261,4 +275,8 @@ Initial release.
 11-14-23
 * OpenTextFile(path)
 * SaveTextFile(path, content)
+
+11-15-23
+* FileExists(path)
+
 
