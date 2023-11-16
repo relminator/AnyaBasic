@@ -41,8 +41,8 @@ Features
  - Full hardware acceleration
  - First class functions
 
-![Alt text](screenshots/screenshotide1.png?raw=true)
-![Alt text](screenshots/screenshotide2.png?raw=true)
+![Alt text](screenshots/screenshotide1.jpg?raw=true)
+![Alt text](screenshots/screenshotide2.jpg?raw=true)
 
 
 Installing:
