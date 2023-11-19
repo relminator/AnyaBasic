@@ -43,19 +43,24 @@ public class AnyaBasicMain
 
 	public static void main(String[] args)
 	{	
+		
+		String workSpace = "";
+		
+		
 		if (args.length < 1)
 		{
-			System.out.println("Usage: AnyaBASIC.jar net.phatcode.rel.main.AnyaBasicMain <source.abs> <debug>");
+			System.out.println("Usage: java -jar AnyaBasic.jar <source.abs> <workspace folder>");
 			System.exit(1);
 		}
 
-		boolean debug = false;
 		if (args.length > 1)
 		{
-			if( args[1].equals("debug") ) debug = true;
+			workSpace = args[1] + "/";
 		}
 		net.phatcode.rel.main.Interpreter interpreter = new net.phatcode.rel.main.Interpreter();
-		interpreter.run(args[0], debug);
+		
+		
+		interpreter.run(args[0], workSpace );
 
 
 

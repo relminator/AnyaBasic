@@ -97,6 +97,8 @@ public class Parser
     private int errorTokenIndex = 0;        //error reporting
     private int currentCodeLine = 0;        //error reporting
 
+    private String workSpace = "";
+    
     public Parser()
     {
         // Fetch this for our return statement
@@ -114,6 +116,11 @@ public class Parser
         this.tokens = tokens;
     }
 
+    public void setWorkspace(String workSpace)
+    {
+    	this.workSpace = workSpace;
+    }
+    
     private Token getToken( int offset )
     {
         if( ( currentTokenIndex + offset ) >= tokens.size() )
@@ -743,7 +750,7 @@ public class Parser
     {
         String fileName = params.get( 0 ).evaluate().toString();
         String arrayName = params.get( 1 ).evaluate().toString();
-        int imageIndex = graphics.loadImage( fileName );
+        int imageIndex = graphics.loadImage( workSpace + fileName );
         assignArrayVariable( arrayName,
                 params.get( 2 ).evaluate(),
                 new ValueNumber( imageIndex ) );
@@ -914,7 +921,7 @@ public class Parser
 		{
 			//assert url != null;
 			//input = new BufferedReader(new InputStreamReader(url.openStream()));
-			input = new BufferedReader(new FileReader(name));
+			input = new BufferedReader(new FileReader(workSpace + name));
 			String inputLine;
 			
 			while( (inputLine = input.readLine()) != null )
@@ -934,7 +941,7 @@ public class Parser
     private Expression fileExists( List<Expression> args )
     {
         String name = args.get( 0 ).evaluate().toString();
-        File tempFile = new File(name); 
+        File tempFile = new File(workSpace + name); 
 		boolean exists = tempFile.exists();
 		int res = 0;
 		if(exists) res = 1;

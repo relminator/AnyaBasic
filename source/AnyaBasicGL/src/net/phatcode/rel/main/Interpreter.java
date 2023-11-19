@@ -83,7 +83,7 @@ class Interpreter
 	}
 	*/
 	
-	void run( String fileName, boolean debug )
+	void run( String fileName, String workSpace )
 	{
 		SourceReader sourceReader = new SourceReader( fileName );
 
@@ -92,7 +92,7 @@ class Interpreter
 		List<Token> tokens = lexer.tokenize(source);
 
 		//printTokens( tokens );
-
+		parser.setWorkspace(workSpace);
 		parser.setTokens( tokens );
 		parser.parse();
 

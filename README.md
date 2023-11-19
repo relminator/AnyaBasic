@@ -285,3 +285,6 @@ Initial release.
 
 11-15-23
 * FileExists(path)
+
+11-19-23
+* Added "workspace" commandline argument(used in the IDE)

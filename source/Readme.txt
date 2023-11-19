@@ -151,6 +151,9 @@ changes:
 11-15-23
 *FileExists(path)
 
+11-19-23
+* Added "workspace" commandline argument(used in the IDE)
+
 
 Note to self(because updating this project after 7 years and looking at the code felt like having a lobotomy):
 1. When adding keywords/statements(e.g. SaveTextFile (filename, content)
