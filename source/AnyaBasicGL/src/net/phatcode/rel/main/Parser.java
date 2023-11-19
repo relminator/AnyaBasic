@@ -822,7 +822,7 @@ public class Parser
     {
     	String fileName = params.get( 0 ).evaluate().toString();
         String content = params.get( 1 ).evaluate().toString();        
-    	File out = new File( fileName );
+    	File out = new File( workSpace + fileName );
 	    FileWriter fw;
 		try
 		{
