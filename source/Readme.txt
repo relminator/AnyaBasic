@@ -1,4 +1,4 @@
-How to Compile:
+How to build:
 
 I used Eclipse so it may be different depending on what IDE you use.
 1. File -> Import Existing projects into wokspace.
@@ -153,6 +153,9 @@ changes:
 
 11-19-23
 * Added "workspace" commandline argument(used in the IDE)
+
+11-22-23
+* Fixed sound loader and sound player (Parser.java and Sonics.java)
 
 
 Note to self(because updating this project after 7 years and looking at the code felt like having a lobotomy):

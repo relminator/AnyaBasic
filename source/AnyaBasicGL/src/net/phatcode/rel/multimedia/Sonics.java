@@ -70,10 +70,12 @@ public class Sonics
 
     public int addSample( String filename, boolean isLooping )
     {
+    	String tempNames[] = filename.split("/");    // split dir
+    	String name = tempNames[tempNames.length-1]; // use only the filename
         SoundEntity sound = new SoundEntity();
         int res = sound.load( filename, isLooping );
-        samples.put( filename, sound );
-        names.add( filename );
+        samples.put( name, sound );
+        names.add( name );
         return res;
     }
 

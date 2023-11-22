@@ -786,7 +786,7 @@ public class Parser
     {
         String name = params.get( 0 ).evaluate().toString();
         boolean isLooping = params.get( 1 ).evaluate().toBoolean();
-        sonics.addSample( name, isLooping );
+        sonics.addSample( workSpace + name, isLooping );
     }
 
     public void executeSoundPlay( String name )
@@ -801,7 +801,7 @@ public class Parser
 
     public void executeSoundStop( String name )
     {
-        sonics.stop( name );
+        sonics.stop(  name );
     }
 
     public void exit( int value )

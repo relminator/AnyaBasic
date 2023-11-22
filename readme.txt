@@ -279,4 +279,9 @@ Initial release.
 11-15-23
 * FileExists(path)
 
+11-19-23
+* Added "workspace" commandline argument(used in the IDE)
+
+11-22-23
+* Fixed sound loader and sound player (Parser.java and Sonics.java)
 

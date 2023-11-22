@@ -428,7 +428,7 @@ szt4rt
             szt4rt
                  ball.canJump = 0
                  ball.dy = -jumpHeight
-                 soundPlay("samples/jejemongameassets/score.wav")
+                 soundPlay("score.wav")
                  score = score + 1
                  r3p34th(0 t0h 20 szt3hp 1)
                  szt4rt
@@ -446,7 +446,7 @@ szt4rt
             kung(ball.y > screenHeight) dapat
             szt4rt
                 ball.dy = -jumpHeight
-                soundPlay("samples/jejemongameassets/bounce.wav")
+                soundPlay("bounce.wav")
                 score = 0
             ehnd
           ehnd
@@ -476,7 +476,7 @@ szt4rt
               kung(ball.y > screenHeight) dapat
               szt4rt
                   ball.dy = -jumpHeight
-                  soundPlay("samples/jejemongameassets/bounce.wav")
+                  soundPlay("bounce.wav")
               ehnd
 
               kung( KeyDown(57) && (enemyArrayStats.size <= 0) ) dapat
@@ -504,7 +504,7 @@ szt4rt
             szt4rt
                kung( collides(x1,y1,x2,y2, enemies[i]) ) dapat
                szt4rt
-                   soundPlay("samples/jejemongameassets/hit.wav")
+                   soundPlay("hit.wav")
                    gState = GameState.GAMEOVER
                    ball.state = BallState.DEAD
                    spawnExplosionParticle( ball.x, ball.y, 10, 30  )
@@ -600,11 +600,11 @@ szt4rt
      fuwnct!own loadSounds()
      szt4rt
         soundInit()
-        soundLoad("samples/jejemongameassets/bg.wav",1)
-        soundLoad("samples/jejemongameassets/tap.wav",0)
-        soundLoad("samples/jejemongameassets/bounce.wav",0)
-        soundLoad("samples/jejemongameassets/hit.wav",0)
-        soundLoad("samples/jejemongameassets/score.wav",0)
+        soundLoad("jejemongameassets/bg.wav",1)
+        soundLoad("jejemongameassets/tap.wav",0)
+        soundLoad("jejemongameassets/bounce.wav",0)
+        soundLoad("jejemongameassets/hit.wav",0)
+        soundLoad("jejemongameassets/score.wav",0)
      ehnd
 
      # Resets the game values #
@@ -615,7 +615,7 @@ szt4rt
           initBall()
           killAllEntities( particles, particleArrayStats )
           killAllEntities( enemies, enemyArrayStats )
-          soundPlay("samples/jejemongameassets/bg.wav")
+          soundPlay("bg.wav")
      ehnd
 
      # load sound assets #

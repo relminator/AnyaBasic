@@ -140,7 +140,7 @@ start
           start
               pipes[index].hasScore = 0    # set hasScore to false so that it won't add to score multiple times #
               score = score + 1
-              soundPlay("samples/flappyassets/score.wav")
+              soundPlay("score.wav")
           end
      end
 
@@ -238,7 +238,7 @@ start
             start
                  fish.canJump = 0
                  fish.dy = -flapHeight
-                 soundPlay("samples/flappyassets/tap.wav")
+                 soundPlay("tap.wav")
             end
             if( fish.y < 10 ) then fish.y = 10     # Limit fish  to top of screen #
             if( fish.dy >= -flapHeight/2) then fish.canJump = 1;
@@ -252,7 +252,7 @@ start
                 fish.state = StateFish.Dead      # Kill it#
                 gameState = StateGame.GameOver
                 fish.dy = -flapHeight*1.5        # Bounce from ground #
-                soundPlay("samples/flappyassets/bounce.wav")
+                soundPlay("bounce.wav")
             end
           end
 
@@ -267,7 +267,7 @@ start
             if(fish.y > screenHeight - 24) then
             start
                fish.dy = -flapHeight*1.5
-               soundPlay("samples/flappyassets/bounce.wav")
+               soundPlay("bounce.wav")
             end
             # Go back to title and reset fish values when we press space #
             if( KeyDown(57) && (activePipes <= 0) ) then
@@ -347,7 +347,7 @@ start
                         start
                             fish.state = StateFish.Dead      # Kill if it hits #
                             gameState = StateGame.GameOver
-                            soundPlay("samples/flappyassets/hit.wav")
+                            soundPlay("hit.wav")
                         end
                         # Checl bottom collision #
                         x1 = pipes[i].x
@@ -363,7 +363,7 @@ start
                         start
                             fish.state = StateFish.Dead
                             gameState = StateGame.GameOver
-                            soundPlay("samples/flappyassets/hit.wav")
+                            soundPlay("hit.wav")
                         end
     
                    end
@@ -471,11 +471,11 @@ start
      function loadSounds()
      start
         soundInit()
-        soundLoad("samples/flappyassets/bg.wav",1)
-        soundLoad("samples/flappyassets/tap.wav",0)
-        soundLoad("samples/flappyassets/bounce.wav",0)
-        soundLoad("samples/flappyassets/hit.wav",0)
-        soundLoad("samples/flappyassets/score.wav",0)
+        soundLoad("flappyassets/bg.wav",1)
+        soundLoad("flappyassets/tap.wav",0)
+        soundLoad("flappyassets/bounce.wav",0)
+        soundLoad("flappyassets/hit.wav",0)
+        soundLoad("flappyassets/score.wav",0)
      end
      
      # Resets the game values #
@@ -485,7 +485,7 @@ start
           score = 0
           initPipes()
           initFish()
-          soundPlay("samples/flappyassets/bg.wav")
+          soundPlay("bg.wav")
      end
 
      # load sound assets #

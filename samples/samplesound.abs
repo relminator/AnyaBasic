@@ -1,8 +1,8 @@
 start
 
 soundInit()
-soundLoad("samples/sounds/bg.wav",1)
-soundPlay("samples/sounds/bg.wav")
+soundLoad("sounds/bg.wav",1)
+soundPlay("bg.wav")
 
 var a
 input(a)

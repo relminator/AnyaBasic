@@ -1,13 +1,37 @@
 
-# Custom font example by Relminator #
+# Glowlines example by Relminator #
 
 start
 
+     var PI = atan(1) * 4
+     var screenWidth = 800
+     var screenHeight =  600
      var frame = 0
 
-     screen(800,600)
+     function drawAnimatedLines( cx, cy, lineType,frame )
+     start
+        for( var i = frame to frame + 360 step 10 )
+        start
+            var px =  (sin(frame/30.0)  * 220 * cos( (i * PI) / 180.0 ))
+			var py =  (sin(frame/80.0)  * 120 * sin( (i * PI) / 180.0 ))
+			var px2 = (sin(frame/130.0)  * 170 * cos( ( (i+20) * PI ) / 180.0 ))
+			var py2 =  (sin(frame/40.0)  * 160 * sin( ( (i+20) * PI ) / 180.0 ))
+			var adder = (abs( 7 * sin( frame/ 20.0) ))
+			for( var j = 0 to adder step 1 )
+			start
+			     drawFancyLine( cx + px, cy + py,
+							    cx + px2, cy + py2,
+								25-(adder*2), lineType,
+								(abs(sin(frame * 0.01))),
+								(abs(sin(-frame * 0.02))),
+								(abs(sin(-frame * 0.03))),
+                                1)
+			end
+        end
+     end
+     screen(ScreenWidth,ScreenHeight)
 
-	 while( !(KeyDown(1)) && !WindowClosed() )  
+	 while( !(KeyDown(1)) && !WindowClosed() )  # Do the graphics loop until we pressed ESC or closed the window #
 	 start
 		frame = frame + 1
 		cls()
@@ -15,10 +39,12 @@ start
 		setColor(1,1,1,1)
 		drawString(0,0,"glowlines!")
 		setBlendMode(1)
-		delay(1) 			
-		screenFlip()        
+		drawAnimatedLines( screenWidth/2, screenHeight/4, 0, frame )
+		drawAnimatedLines( screenWidth/2, screenHeight*0.75, 3, -frame )
+		delay(1) 			# Sleep for 1 milliseconds #
+		screenFlip()        # Show the frame buffer #
 	 end
- 	exit(0)  
+ 	 exit(0)  # Clean up graphics#
 
 end
 

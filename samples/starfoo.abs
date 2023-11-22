@@ -462,7 +462,7 @@ start
             entityG.scale = 1
             addEntity( shots, shotArrayStats, entityG )
 
-            soundPlay("samples/starfooassets/shot.wav")
+            soundPlay("shot.wav")
         end
     end
 
@@ -868,7 +868,7 @@ start
                         spawnShotParticle( shots[i].x, shots[i].y,
                                            2 + random(4), (180 + 45 + random(90))*toRadian ,
                                            10+random(10)  )
-                        soundPlay("samples/starfooassets/enemyhit.wav")
+                        soundPlay("enemyhit.wav")
                         if( enemies[j].hp < 0 ) then
                         start
                             spawnExplosionParticle( enemies[j].x, enemies[j].y,
@@ -877,7 +877,7 @@ start
                             enemies[j].active = 0
                             enemies[j].x = -1000
                             enemies[j].y = -1000
-                            soundPlay("samples/starfooassets/explode01.wav")
+                            soundPlay("explode01.wav")
                         end
                         break
                     end
@@ -906,7 +906,7 @@ start
                                                 0, 0 )
                         gameState = StateGame.GameOver
                         ship.state = ShipState.DEAD
-                        soundPlay("samples/starfooassets/explode01.wav")
+                        soundPlay("explode01.wav")
                         break
                     end
             end
@@ -933,7 +933,7 @@ start
                                                 0, 0 )
                         gameState = StateGame.GameOver
                         ship.state = ShipState.DEAD
-                        soundPlay("samples/starfooassets/explode01.wav")
+                        soundPlay("explode01.wav")
                         break
                     end
             end
@@ -1048,10 +1048,10 @@ start
     function loadSounds()
      start
         soundInit()
-        soundLoad("samples/starfooassets/shot.wav",0)
-        soundLoad("samples/starfooassets/enemyhit.wav",0)
-        soundLoad("samples/starfooassets/explode01.wav",0)
-        soundLoad("samples/starfooassets/bgm.wav",1)
+        soundLoad("starfooassets/shot.wav",0)
+        soundLoad("starfooassets/enemyhit.wav",0)
+        soundLoad("starfooassets/explode01.wav",0)
+        soundLoad("starfooassets/bgm.wav",1)
      end
 
     function drawScrollers()
@@ -1072,7 +1072,7 @@ start
         killAllEntities( enemies, enemyArrayStats )
         gameState = StateGame.TITLE
         gameScore = 0
-        soundPlay("samples/starfooassets/bgm.wav")
+        soundPlay("bgm.wav")
     end
 
     # Load sounds #
@@ -1082,7 +1082,7 @@ start
     screen(ScreenWidth,ScreenHeight,1)
 
     loadImages()
-    soundPlay("samples/starfooassets/bgm.wav")
+    soundPlay("bgm.wav")
 
     reset()
 
