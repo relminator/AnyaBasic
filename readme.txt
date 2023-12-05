@@ -285,3 +285,5 @@ Initial release.
 11-22-23
 * Fixed sound loader and sound player (Parser.java and Sonics.java)
 
+12-05-23
+* Added a proper IDE

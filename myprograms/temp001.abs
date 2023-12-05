@@ -1,0 +1,16 @@
+Start
+
+    var begin = 0
+    var stop = 7
+    var skip = 2
+    for(var i = begin to stop step skip)
+    start
+        print(i)
+        print("Anya")
+        print ("Lope")
+
+    end
+
+
+
+end

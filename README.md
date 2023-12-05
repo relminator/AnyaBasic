@@ -61,7 +61,7 @@ Usage: java -jar AnyaBasic.jar <source.abs>
 * For graphics and sound apps, you need to include the lib path:
 > java -Djava.library.path=. -jar AnyaBasic.jar  <source.abs>
 * See the batch and SH files in the samples section.
-* You can also use the accompanying ConTEXT editor as an IDE to make coding a bit easier.
+* Just use the IDE <AnyaBasicIDE.jar> to simplify usage.
 
 
 How to Compile:
@@ -291,3 +291,6 @@ Initial release.
 
 11-22-23
 * Fixed sound loader and sound player (Parser.java and Sonics.java)
+
+12-05-23
+* Added a proper IDE
