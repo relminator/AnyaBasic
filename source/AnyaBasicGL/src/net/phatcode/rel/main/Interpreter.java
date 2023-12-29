@@ -35,6 +35,7 @@ package net.phatcode.rel.main; /************************************************
 
 import net.phatcode.rel.parselets.Statement;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -83,8 +84,12 @@ class Interpreter
 	}
 	*/
 	
-	void run( String fileName, String workSpace )
+	void run( String fileName, String workSpace ) throws IOException
 	{
+	
+	    Console console = new Console();
+	    console.setVisible(true);
+	    
 		SourceReader sourceReader = new SourceReader( fileName );
 
 		source = sourceReader.getSource();

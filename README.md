@@ -294,3 +294,6 @@ Initial release.
 
 12-05-23
 * Added a proper IDE
+
+12-29-23
+* Added a Swing-based terminal emulator for portability

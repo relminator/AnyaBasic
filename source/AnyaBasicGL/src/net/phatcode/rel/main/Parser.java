@@ -1206,8 +1206,7 @@ public class Parser
                 }
                 break;
             default:
-                System.out.println( "ERROR! Undefined Keyword!: " + type.toString() );
-                exit( 1 );
+                printError( "ERROR! Undefined Keyword!: " + type.toString() );
                 break;
         }
 
@@ -1365,8 +1364,7 @@ public class Parser
                     res = executeUserFunction( funky, args );
                 } else
                 {
-                    System.out.println( "Runtime ERROR: Function '" + funky + "' undefined." );
-                    exit( 1 );
+                    printError( "Runtime ERROR: Function '" + funky + "' undefined." );
                 }
                 break;
         }
@@ -1387,15 +1385,15 @@ public class Parser
         // so that arguments are assigned to function parameters
         if( !symbolTable.containsKey( funky ) )
         {
-            System.out.println( "Runtime ERROR: Function '" + funky + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Function '" + funky + "' undefined." );
+            
         }
         List<String> params = ( (ValueFunction) symbolTable.get( funky ) ).getVariables();
 
         if( params.size() != args.size() )
         {
-            System.out.println( "Runtime ERROR: Argument and Parameter sizes in Function '" + funky + "' does not match." );
-            exit( 1 );
+            printError( "Runtime ERROR: Argument and Parameter sizes in Function '" + funky + "' does not match." );
+            
         }
         for( int i = 0; i < params.size(); i++ )
         {
@@ -1414,8 +1412,8 @@ public class Parser
 
         if( symbolTable.containsKey( funky ) )
         {
-            System.out.println( "Runtime ERROR: Function '" + funky + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Function '" + funky + "' already defined." );
+            
         }
 
         symbolTable.put( funky, new ValueFunction( funky, params, block ) );
@@ -1433,15 +1431,15 @@ public class Parser
 
         if( !symbolTable.containsKey( funky ) )
         {
-            System.out.println( "Runtime ERROR: Function '" + funky + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Function '" + funky + "' undefined." );
+            
         }
         List<String> params = ( (ValueFunction) symbolTable.get( funky ) ).getVariables();
 
         if( params.size() != args.size() )
         {
-            System.out.println( "Runtime ERROR: Argument and Parameter sizes in Function '" + funky + "' does not match." );
-            exit( 1 );
+            printError( "Runtime ERROR: Argument and Parameter sizes in Function '" + funky + "' does not match." );
+            
         }
         for( int i = 0; i < params.size(); i++ )
         {
@@ -1460,8 +1458,8 @@ public class Parser
     {
         if( symbolTable.containsKey( name ) )
         {
-            System.out.println( "Runtime ERROR: Array '" + name + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array '" + name + "' already defined." );
+            
         }
 
         List<Expression> items = new ArrayList<>( args.size() );
@@ -1484,8 +1482,8 @@ public class Parser
     {
         if( symbolTable.containsKey( name ) )
         {
-            System.out.println( "Runtime ERROR: Array '" + name + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array '" + name + "' already defined." );
+            
         }
 
         List<Expression> items = new ArrayList<>( args.size() );
@@ -1506,8 +1504,8 @@ public class Parser
 
         if( symbolTable.containsKey( name ) )
         {
-            System.out.println( "Runtime ERROR: Type '" + name + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Type '" + name + "' already defined." );
+            
         }
 
         symbolTable.put( name, new ValueStruct( name, fields ) );
@@ -1524,8 +1522,8 @@ public class Parser
 
         if( !symbolTable.containsKey( structName ) )
         {
-            System.out.println( "Runtime ERROR: Type '" + structName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Type '" + structName + "' undefined." );
+            
         }
 
         Map<String, Value> structfields =
@@ -1536,8 +1534,8 @@ public class Parser
 
         if( symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: Type Variable '" + varName + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Type Variable '" + varName + "' already defined." );
+            
         }
         symbolTable.put( varName, new ValueStruct( varName, varfields ) );
         block.execute();
@@ -1554,8 +1552,8 @@ public class Parser
 
         if( !symbolTable.containsKey( structName ) )
         {
-            System.out.println( "Runtime ERROR: Type '" + structName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Type '" + structName + "' undefined." );
+            
         }
 
         List<Expression> items = new ArrayList<>();
@@ -1571,8 +1569,8 @@ public class Parser
 
         if( symbolTable.containsKey( arrayName ) )
         {
-            System.out.println( "Runtime ERROR: Array Type Variable '" + arrayName + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array Type Variable '" + arrayName + "' already defined." );
+            
         }
         symbolTable.put( arrayName, new ValueArray( arrayName, items ) );
         return null;
@@ -1589,8 +1587,8 @@ public class Parser
 
         if( !symbolTable.containsKey( structName ) )
         {
-            System.out.println( "Runtime ERROR: Type '" + structName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Type '" + structName + "' undefined." );
+            
         }
 
         List<Expression> items = new ArrayList<>();
@@ -1610,8 +1608,8 @@ public class Parser
 
         if( symbolTable.containsKey( arrayName ) )
         {
-            System.out.println( "Runtime ERROR: Array Type Variable '" + arrayName + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array Type Variable '" + arrayName + "' already defined." );
+            
         }
         symbolTable.put( arrayName, new ValueArray( arrayName, rows, cols ,items ) );
         return null;
@@ -1621,8 +1619,8 @@ public class Parser
     {
         if( symbolTable.containsKey( name ) )
         {
-            System.out.println( "Runtime ERROR: Associative Array '" + name + "' already defined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Associative Array '" + name + "' already defined." );
+            
         }
 
         symbolTable.put( name, new ValueMap( name ) );
@@ -1637,8 +1635,8 @@ public class Parser
         }
         else
         {
-            System.out.println( "Runtime ERROR: Variable or Type '" + name + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Variable or Type '" + name + "' undefined." );
+            
         }
         if( userDefinedStructs.containsKey( name ) )
         {
@@ -1689,6 +1687,14 @@ public class Parser
 
         System.out.println( codeString );
         System.out.println( caretString );
+        try
+        {
+            System.in.read();  // pauses the console
+        } catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }   
     }
 
     // Helper function for error reporting
@@ -1803,8 +1809,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: Variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Variable '" + varName + "' undefined." );
+            
         }
         symbolTable.put( varName, value );
     }
@@ -1814,8 +1820,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: Array variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array variable '" + varName + "' undefined." );
+            
         }
         symbolTable.get( varName ).toArray().set( (int) index.evaluate().toNumber(),
                 value );
@@ -1829,8 +1835,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: Array variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array variable '" + varName + "' undefined." );
+            
         }
 
         int r = row.evaluate().toInteger();
@@ -1848,15 +1854,15 @@ public class Parser
     {
         if( !symbolTable.containsKey( structName ) )
         {
-            System.out.println( "Runtime ERROR: Type Variable '" + structName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Type Variable '" + structName + "' undefined." );
+            
         }
         Map<String, Value> fields = ( (ValueStruct) symbolTable.get( structName ) ).getFields();
         if( !fields.containsKey( fieldName ) )
         {
-            System.out.println( "Runtime ERROR: Field Variable '" +
+            printError( "Runtime ERROR: Field Variable '" +
                     structName + "." + fieldName + "' undefined." );
-            exit( 1 );
+            
         }
 
         fields.put( fieldName, value );
@@ -1872,8 +1878,8 @@ public class Parser
 
         if( !symbolTable.containsKey( arrayName ) )
         {
-            System.out.println( "Runtime ERROR: Array Variable '" + arrayName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array Variable '" + arrayName + "' undefined." );
+            
         }
 
         Map<String, Value> fields = ( (ValueStruct) symbolTable.get(
@@ -1882,9 +1888,9 @@ public class Parser
         if( !fields.containsKey( fieldName ) )
         {
             String idx = "[" + ( (int) index.evaluate().toNumber() ) + "]";
-            System.out.println( "Runtime ERROR: Field Variable '" +
+            printError( "Runtime ERROR: Field Variable '" +
                     arrayName + idx + "." + fieldName + "' undefined." );
-            exit( 1 );
+            
         }
 
         fields.put( fieldName, value );
@@ -1901,8 +1907,8 @@ public class Parser
 
         if( !symbolTable.containsKey( arrayName ) )
         {
-            System.out.println( "Runtime ERROR: Array Variable '" + arrayName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Array Variable '" + arrayName + "' undefined." );
+            
         }
 
         int r = row.evaluate().toInteger();
@@ -1913,9 +1919,9 @@ public class Parser
         if( !fields.containsKey( fieldName ) )
         {
             String idx = "[" + r + "]" + "[" + c + "]";
-            System.out.println( "Runtime ERROR: Field Variable '" +
+            printError( "Runtime ERROR: Field Variable '" +
                     arrayName + idx + "." + fieldName + "' undefined." );
-            exit( 1 );
+            
         }
 
         fields.put( fieldName, value );
@@ -1926,8 +1932,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: Map variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Map variable '" + varName + "' undefined." );
+            
         }
         ((ValueMap)symbolTable.get( varName )).toMap().put( index.evaluate().toString(),
                 value );
@@ -1952,8 +1958,8 @@ public class Parser
         //System.out.println("Variable name:" + symbolTable.get( varName ));
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: variable '" + varName + "' undefined." );
+            
         }
         return symbolTable.get( varName );
     }
@@ -1963,8 +1969,8 @@ public class Parser
         //System.out.println("Variable name:" + symbolTable.get( varName ));
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: variable '" + varName + "' undefined." );
+            
         }
         return symbolTable.get( varName ).toArray().get( (int) index.evaluate().toNumber() );
     }
@@ -1975,8 +1981,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: variable '" + varName + "' undefined." );
+            
         }
         int r = row.evaluate().toInteger();
         int c = col.evaluate().toInteger();
@@ -1989,8 +1995,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: variable '" + varName + "' undefined." );
+            
         }
         return ( (ValueStruct) symbolTable.get( varName ) ).getFields().get( fieldName );
     }
@@ -2001,8 +2007,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: variable '" + varName + "' undefined." );
+            
         }
         return ( (ValueStruct) symbolTable.get(
                 varName ).toArray().get(
@@ -2016,8 +2022,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: variable '" + varName + "' undefined." );
+            
         }
 
         int r = row.evaluate().toInteger();
@@ -2031,8 +2037,8 @@ public class Parser
     {
         if( !symbolTable.containsKey( varName ) )
         {
-            System.out.println( "Runtime ERROR: Associative Array variable '" + varName + "' undefined." );
-            exit( 1 );
+            printError( "Runtime ERROR: Associative Array variable '" + varName + "' undefined." );
+            
         }
         return ((ValueMap)symbolTable.get( varName )).toMap().get( index.evaluate().toString() );
     }
@@ -2092,6 +2098,22 @@ public class Parser
             eatToken( 1 );
         }
         return res;
+    }
+    
+    public void printError( String error )
+    {
+        System.out.println( error );
+        try
+        {
+            System.in.read();  // pauses the console
+            exit( 1 );
+        } 
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
     }
 
 }

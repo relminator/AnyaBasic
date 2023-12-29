@@ -47,7 +47,7 @@ abstract class Renderer
         {
             Display.setDisplayMode(new DisplayMode(screenWidth, screenHeight));
             Display.create();
-            Display.setTitle( "AnyaBasic 1.1.0" );
+            Display.setTitle( "AnyaBasic 1.3.0" );
         }
         catch( LWJGLException e )
         {

@@ -1,5 +1,7 @@
 package net.phatcode.rel.main;
 
+import java.io.IOException;
+
 /********************************************************************
  *  net.phatcode.rel.main.AnyaBasicMain.java
  *  Entry point/main class
@@ -41,10 +43,10 @@ package net.phatcode.rel.main;
 public class AnyaBasicMain
 {
 
-	public static void main(String[] args)
+    public static void main(String[] args) throws IOException
 	{	
 		
-		String workSpace = "";
+	    String workSpace = "";
 		
 		
 		if (args.length < 1)
