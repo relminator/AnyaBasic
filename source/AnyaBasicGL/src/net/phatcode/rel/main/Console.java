@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,6 +35,9 @@ public class Console extends JFrame
         {
             System.err.println("Failed to initialize theme. Using fallback.");
         }
+        
+        ImageIcon abIcon = new ImageIcon(this.getClass().getClassLoader().getResource("assets/anyabasic_pink_32.png"));
+        setIconImage(abIcon.getImage());
         
         setTitle("AnyaBasic 1.3.0");
         setPreferredSize(new Dimension(600, 600));
